@@ -1,15 +1,12 @@
 package net.kodein.pres
 
 import androidx.compose.runtime.*
-import net.kodein.pres.util.transition
 import net.kodein.pres.util.zIndex
-import org.jetbrains.compose.web.attributes.AttrsBuilder
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H3
 import org.jetbrains.compose.web.dom.Text
 import org.w3c.dom.DOMRect
-import org.w3c.dom.HTMLDivElement
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -19,12 +16,11 @@ import kotlin.time.Duration
 
 @Composable
 internal fun OverviewPresentation(
+    container: PresentationContainer,
     slides: List<Slide>,
     defaultTransition: Transition.TimedSet,
-    container: DOMRect?,
-    currentState: PresentationState,
-    containerAttrs: (AttrsBuilder<HTMLDivElement>.(Duration) -> Unit)? = null,
-    overSlides: @Composable (PresentationState) -> Unit,
+    size: DOMRect?,
+    currentState: PresentationState
 ) {
     var moves by remember { mutableStateOf(-1) }
     LaunchedEffect(currentState.slideIndex) { moves += 1 }
@@ -40,7 +36,7 @@ internal fun OverviewPresentation(
             backgroundColor(Color.silver)
         })
     }) {
-        if (container == null) return@Div
+        if (size == null) return@Div
 
         (-3..3)
             .filter { currentState.slideIndex + it in slides.indices }
@@ -51,16 +47,16 @@ internal fun OverviewPresentation(
 
 
                 key("overview-slide-$slideIndex") {
-                    val slideFactor = min(container.width / slide.width, container.height / slide.height)
+                    val slideFactor = min(size.width / slide.width, size.height / slide.height)
                     val slideFullWidth = slide.width * slideFactor
                     val slideFullHeight = slide.height * slideFactor
 
-                    val wLoss = container.width - slideFullWidth
-                    val hLoss = container.height - slideFullHeight
+                    val wLoss = size.width - slideFullWidth
+                    val hLoss = size.height - slideFullHeight
 
                     val miniSlideFactor = 0.8
                     val slideMarginFromScreenFactor = 0.018
-                    val slideFromContainerFactor = (container.width / 5) / (slideFullWidth * miniSlideFactor)
+                    val slideFromContainerFactor = (size.width / 5) / (slideFullWidth * miniSlideFactor)
 
                     val smallSlideHeight = slideFullHeight * slideFromContainerFactor
                     val smallSlideWidth = slideFullWidth * slideFromContainerFactor
@@ -74,11 +70,6 @@ internal fun OverviewPresentation(
                         classes(PresStyle.css {
                             height(2.cssRem)
                             position(Position.Absolute)
-//                            transition {
-//                                "top"(0.3.s)
-//                                "left"(0.3.s)
-//                                "transform"(0.3.s)
-//                            }
                             property("transform-origin", "bottom center")
                             padding(0.px)
                             margin(0.px)
@@ -93,16 +84,16 @@ internal fun OverviewPresentation(
                             width(smallSlideWidth.px)
                             property("top",
                                 (
-                                        (container.height - smallSlideHeight) / 2
+                                        (size.height - smallSlideHeight) / 2
                                                 + if (delta != 0) (smallSlideHeight - miniSlideHeight) / 2 else 0.0
                                         ).px
                                         - 2.cssRem
                             )
                             property("left", (
-                                    (container.width - smallSlideWidth) / 2
+                                    (size.width - smallSlideWidth) / 2
                                             + smallSlideWidth * delta
                                             - (smallSlideWidth - miniSlideWidth) / 2 * (delta + miniDelta)
-                                            + container.width * slideMarginFromScreenFactor * delta
+                                            + size.width * slideMarginFromScreenFactor * delta
                                     ).px)
                             if (delta != 0) transform { scale(miniSlideFactor) }
                         }
@@ -113,10 +104,6 @@ internal fun OverviewPresentation(
                     Div({
                         classes(PresStyle.css {
                             position(Position.Absolute)
-//                            transition {
-//                                "left"(0.3.s)
-//                                "transform"(0.3.s)
-//                            }
                             property("box-shadow", "0px 0px 2rem 0rem black")
                         })
                         style {
@@ -127,7 +114,7 @@ internal fun OverviewPresentation(
                                 wLoss / 2
                                 + smallSlideWidth * delta
                                 - miniSlideMargin * slideFromContainerFactor * (delta + miniDelta)
-                                + container.width * slideMarginFromScreenFactor * delta
+                                + size.width * slideMarginFromScreenFactor * delta
                             ).px)
                             top((hLoss / 2).px)
                             zIndex(if (delta == 0) 2 else 1)
@@ -141,45 +128,34 @@ internal fun OverviewPresentation(
                                 position(Position.Absolute)
                             })
                             style {
-                                width(container.width.px)
-                                height(container.height.px)
+                                width(size.width.px)
+                                height(size.height.px)
                                 left((-wLoss / 2).px)
                                 top((-hLoss / 2).px)
                             }
-                            containerAttrs?.invoke(this, Duration.ZERO)
                         }) {
-                            Div({
-                                classes(PresStyle.css {
-                                    position(Position.Absolute)
-                                })
-                                style {
-                                    width(container.width.px)
-                                    height(container.height.px)
-                                    left(0.px)
-                                    top(0.px)
-                                }
-                                slide.containerAttrs?.invoke(this)
-                            }) {
-                                SlideContainer(
-                                    slide = slide,
-                                    state = slideState,
-                                    container = container,
-                                    position = SlidePosition.CURRENT,
-                                    defaultTransition = defaultTransition,
-                                    compose = true
+                            currentState
+                                .copy(
+                                    slideIndex = slideIndex,
+                                    slideState = slideState,
+                                    slideStateCount = slide.states,
+                                    globalState = slides.subList(0, slideIndex).sumOf { it.states } + slideState,
+                                    slideConfig = slide.config,
+                                    slideTransitionDuration = Duration.ZERO
                                 )
+                                .container {
+                                    SlideContainer(
+                                        slide = slide,
+                                        state = slideState,
+                                        container = size,
+                                        position = SlidePosition.CURRENT,
+                                        defaultTransition = defaultTransition,
+                                        compose = true
+                                    )
                             }
                         }
-                        overSlides(currentState.copy(
-                            slideIndex = slideIndex,
-                            slideState = slideState,
-                            slideStateCount = slide.states,
-                            globalState = slides.subList(0, slideIndex).sumOf { it.states } + slideState
-                        ))
                     }
-
                 }
             }
-
     }
 }

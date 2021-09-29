@@ -3,25 +3,11 @@ package net.kodein.pres
 import androidx.compose.runtime.*
 import kotlinx.browser.window
 import net.kodein.pres.util.*
-import org.jetbrains.compose.web.attributes.AttrsBuilder
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.renderComposableInBody
 import org.w3c.dom.DOMRect
-import org.w3c.dom.HTMLDivElement
 import kotlin.time.Duration
-
-class PresentationSlides internal constructor() {
-    internal val slides = ArrayList<Slide>()
-
-    operator fun Slide.unaryPlus() {
-        slides += this
-    }
-}
-
-@Composable
-fun rememberSlides(build: PresentationSlides.() -> Unit): List<Slide> =
-    remember { PresentationSlides().apply(build) }.slides
 
 internal object PresStyle: StyleSheet(InHeadRulesHolder())
 
@@ -31,14 +17,15 @@ data class PresentationState(
     val slideStateCount: Int,
     val globalSlideCount: Int,
     val globalState: Int,
-    val globalStateCount: Int
+    val globalStateCount: Int,
+    val slideTransitionDuration: Duration,
+    val slideConfig: Any?
 )
 
 fun presentationAppInBody(
     transition: Transition.TimedSet = Move.timed(Duration.milliseconds(600)),
     enableRouter: Boolean = false,
-    containerAttrs: (AttrsBuilder<HTMLDivElement>.(Duration) -> Unit)? = null,
-    overSlides: @Composable (PresentationState) -> Unit = {},
+    container: PresentationContainer = { presentationContainer(content = it) },
     slides: PresentationSlides.() -> Unit
 ) {
     setBodyNoMargin()
@@ -55,20 +42,20 @@ fun presentationAppInBody(
                 slides = rememberSlides { slides() },
                 transition = transition,
                 enableRouter = enableRouter,
-                containerAttrs = containerAttrs,
-                overSlides = overSlides
+                container = container
             )
         }
     }
 }
+
+typealias PresentationContainer = @Composable PresentationState.(@Composable () -> Unit) -> Unit
 
 @Composable
 fun Presentation(
     slides: List<Slide>,
     transition: Transition.TimedSet = Move.timed(Duration.milliseconds(600)),
     enableRouter: Boolean = false,
-    containerAttrs: (AttrsBuilder<HTMLDivElement>.(Duration) -> Unit)? = null,
-    overSlides: @Composable (PresentationState) -> Unit = {}
+    container: PresentationContainer = { presentationContainer(content = it) }
 ) {
     var currentSlideIndex by remember { mutableStateOf(0) }
     var currentSlideState by remember { mutableStateOf(0) }
@@ -201,28 +188,27 @@ fun Presentation(
             slideStateCount = currentSlide?.states ?: 0,
             globalSlideCount = slides.size,
             globalState = slides.subList(0, currentSlideIndex).sumOf { it.states } + currentSlideState,
-            globalStateCount = slides.sumOf { it.states }
+            globalStateCount = slides.sumOf { it.states },
+            slideTransitionDuration = (if (lastMoveWasForward) currentSlide?.inTransition?.duration else currentSlide?.outTransition?.duration) ?: transition.duration,
+            slideConfig = currentSlide?.config
         )
 
         if (overview) {
             OverviewPresentation(
+                container = container,
                 slides = slides,
                 defaultTransition = transition,
-                container = size,
-                currentState = currentState,
-                containerAttrs = containerAttrs,
-                overSlides = overSlides
+                size = size,
+                currentState = currentState
             )
         }
         if (!overview) {
             FullScreenPresentation(
+                container = container,
                 slides = slides,
                 defaultTransition = transition,
                 size = size,
-                lastMoveWasForward = lastMoveWasForward,
-                currentState = currentState,
-                containerAttrs = containerAttrs,
-                overSlides = overSlides
+                currentState = currentState
             )
         }
     }

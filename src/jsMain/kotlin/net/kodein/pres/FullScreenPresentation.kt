@@ -13,44 +13,44 @@ import kotlin.time.Duration
 
 @Composable
 internal fun FullScreenPresentation(
+    container: PresentationContainer,
     slides: List<Slide>,
     defaultTransition: Transition.TimedSet,
     size: DOMRect?,
-    lastMoveWasForward: Boolean,
-    currentState: PresentationState,
-    containerAttrs: (AttrsBuilder<HTMLDivElement>.(Duration) -> Unit)?,
-    overSlides: @Composable (PresentationState) -> Unit,
+    currentState: PresentationState
 ) {
     val currentSlide = slides.getOrNull(currentState.slideIndex)
 
-    val slideTransitionDuration = (if (lastMoveWasForward) currentSlide?.inTransition?.duration else currentSlide?.outTransition?.duration) ?: defaultTransition.duration
+//    val slideTransitionDuration = (if (lastMoveWasForward) currentSlide?.inTransition?.duration else currentSlide?.outTransition?.duration) ?: defaultTransition.duration
 
-    Div({
-        classes(PresStyle.css {
-            width(100.percent)
-            height(100.percent)
-            position(Position.Absolute)
-            top(0.px)
-            left(0.px)
-            overflow("hidden")
-        })
-        containerAttrs?.invoke(this, slideTransitionDuration)
-    }) {
-        Div({
-            classes(PresStyle.css {
-                width(100.percent)
-                height(100.percent)
-                position(Position.Absolute)
-                top(0.px)
-                left(0.px)
-            })
-            if (currentSlide != null) {
-                style {
-                    transition { "background-color"(slideTransitionDuration.inWholeMilliseconds.ms) }
-                }
-            }
-            currentSlide?.containerAttrs?.invoke(this)
-        }) {
+//    Div({
+//        classes(PresStyle.css {
+//            width(100.percent)
+//            height(100.percent)
+//            position(Position.Absolute)
+//            top(0.px)
+//            left(0.px)
+//            overflow("hidden")
+//        })
+//        containerAttrs?.invoke(this, slideTransitionDuration)
+//    }) {
+//        Div({
+//            classes(PresStyle.css {
+//                width(100.percent)
+//                height(100.percent)
+//                position(Position.Absolute)
+//                top(0.px)
+//                left(0.px)
+//            })
+//            if (currentSlide != null) {
+//                style {
+//                    transition { "background-color"(slideTransitionDuration.inWholeMilliseconds.ms) }
+//                }
+//            }
+//            currentSlide?.containerAttrs?.invoke(this)
+//        }) {
+
+    currentState.container {
             slides.forEachIndexed { index, slide ->
                 key("slide-$index") {
                     val position = when {
@@ -73,7 +73,8 @@ internal fun FullScreenPresentation(
                     )
                 }
             }
-            overSlides(currentState)
-        }
     }
+//            overSlides(currentState)
+//        }
+//    }
 }

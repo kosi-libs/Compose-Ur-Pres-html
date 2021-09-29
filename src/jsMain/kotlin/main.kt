@@ -1,8 +1,5 @@
 import androidx.compose.runtime.*
-import net.kodein.pres.Flip
-import net.kodein.pres.Slide
-import net.kodein.pres.presentationAppInBody
-import net.kodein.pres.timed
+import net.kodein.pres.*
 import net.kodein.pres.util.InHeadRulesHolder
 import net.kodein.pres.util.transition
 import org.jetbrains.compose.web.css.*
@@ -38,30 +35,20 @@ fun FakeSlideContent(index: Int, state: Int) {
 
 fun main() = presentationAppInBody(
     enableRouter = true,
-    containerAttrs = {
-        classes(AppStyle.css {
-            backgroundColor(Color("#240821"))
-            backgroundImage("url('logo-bg.svg')")
-            backgroundRepeat("no-repeat")
-            backgroundPosition("right 0 bottom -15rem")
-            backgroundSize("contain")
-            color(Color.white)
-        })
-    },
-    overSlides = {
-        Div({
+    container = { content ->
+        overlayedPresentationContainer({
             classes(AppStyle.css {
-                height(0.5.cssRem)
-                position(Position.Absolute)
-                left(0.px)
-                bottom(0.px)
-                backgroundColor(Color.red)
-                transition { "width"(0.3.s) }
+                backgroundColor(Color("#240821"))
+                backgroundImage("url('logo-bg.svg')")
+                backgroundRepeat("no-repeat")
+                backgroundPosition("right 0 bottom -15rem")
+                backgroundSize("contain")
+                color(Color.white)
             })
-            style {
-                width((it.globalState.toDouble() / (it.globalStateCount - 1).toDouble() * 100.0).percent)
-            }
-        }) {  }
+        }) {
+            content()
+            progress(Color("#651B20"))
+        }
     }
 ) {
     +Slide(
@@ -80,7 +67,7 @@ fun main() = presentationAppInBody(
         name = "Third",
         states = 3,
         inTransition = Flip.timed(Duration.seconds(2)),
-        containerAttrs = {
+        config = OverlayAttrs {
             classes(AppStyle.css {
                 backgroundColor(Color.darkblue)
             })
