@@ -1,0 +1,5 @@
+= Compose Ur Pres
+
+A *WORK IN PROGRESS* web presentation engine for Compose-JB.
+
+To see the demo presentation, run the `jsBrowserRun` Gradle task.
