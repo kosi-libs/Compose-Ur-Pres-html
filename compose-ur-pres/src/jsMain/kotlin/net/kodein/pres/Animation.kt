@@ -133,7 +133,7 @@ public object Animations {
                 setStyle {
                     transition {
                         "transform"(duration.inWholeMilliseconds.ms)
-                        "opacity"(duration.inWholeMilliseconds.ms)
+                        "opacity"(duration.inWholeMilliseconds.ms, AnimationTimingFunction.EaseInOut)
                     }
                     transform {
                         perspective(90.em)

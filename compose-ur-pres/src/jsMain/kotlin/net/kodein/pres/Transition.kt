@@ -64,4 +64,17 @@ public object Transitions {
         }
     }
     public val fontGrow: Transition = FontGrow(milliseconds(300))
+
+    public class Stamp(private val duration: Duration) : Transition {
+        override val cssTransition: TransitionBuilder.() -> Unit = {
+            "opacity"(duration.inWholeMilliseconds.ms)
+            "transform"(duration.inWholeMilliseconds.ms, AnimationTimingFunction.EaseIn)
+        }
+        override val hiddenStyle: StyleBuilder.() -> Unit = {
+            opacity(0)
+            transform { scale(1.8) }
+        }
+    }
+    public val stamp: Transition = Stamp(Duration.milliseconds(400))
+
 }
