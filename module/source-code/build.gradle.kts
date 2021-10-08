@@ -1,6 +1,7 @@
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
+    `maven-publish`
 }
 
 kotlin {
@@ -19,9 +20,10 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
-                implementation(project(":compose-ur-pres"))
                 implementation(compose.web.core)
                 implementation(compose.runtime)
+
+                api(project(":compose-ur-pres"))
                 implementation(npm("highlight.js", "^11.2.0"))
             }
         }
