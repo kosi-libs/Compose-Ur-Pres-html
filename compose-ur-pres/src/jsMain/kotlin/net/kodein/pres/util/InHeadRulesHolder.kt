@@ -8,6 +8,7 @@ import org.w3c.dom.HTMLStyleElement
 import org.w3c.dom.css.CSSStyleSheet
 
 
+//https://github.com/JetBrains/compose-jb/issues/1207
 public class InHeadRulesHolder : CSSRulesHolder {
     private val style: HTMLStyleElement = document.createElement("style") as HTMLStyleElement
     private val rules = ArrayList<CSSRuleDeclaration>()

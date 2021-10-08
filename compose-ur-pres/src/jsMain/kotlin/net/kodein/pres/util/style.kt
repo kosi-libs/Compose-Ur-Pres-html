@@ -2,9 +2,16 @@ package net.kodein.pres.util
 
 import org.jetbrains.compose.web.ExperimentalComposeWebApi
 import org.jetbrains.compose.web.css.*
+import org.jetbrains.compose.web.css.selectors.descendant
+import org.jetbrains.compose.web.css.selectors.type
 
 
 public typealias Style = StyleBuilder.() -> Unit
+
+// https://github.com/JetBrains/compose-jb/issues/1241
+public fun CSSBuilder.d(type: String, cssRule: CSSBuilder.() -> Unit) {
+    descendant(self, type(type)).style(cssRule)
+}
 
 public typealias CSSTimeValue = CSSSizeValue<out CSSUnitTime>
 

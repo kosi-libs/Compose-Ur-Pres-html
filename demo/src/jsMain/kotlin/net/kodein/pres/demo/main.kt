@@ -3,6 +3,7 @@ package net.kodein.pres.demo
 import net.kodein.pres.*
 import net.kodein.pres.sourcecode.installHighlightJsTheme
 import net.kodein.pres.util.InHeadRulesHolder
+import net.kodein.pres.util.d
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.B
 import org.jetbrains.compose.web.dom.H1
@@ -20,13 +21,13 @@ object AppStyle: StyleSheet(InHeadRulesHolder()) {
         fontFamily("sans-serif")
         fontSize(1.5.em)
         textAlign("center")
-        "ul" {
+        d("ul") {
             textAlign("start")
         }
-        "pre" {
+        d("pre") {
             textAlign("left")
         }
-        "a" {
+        d("a") {
             color(Color("#E8441F"))
             textDecoration("none")
         }
