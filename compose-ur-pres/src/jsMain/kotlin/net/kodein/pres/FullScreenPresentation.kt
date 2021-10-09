@@ -28,7 +28,7 @@ internal fun FullScreenPresentation(
                         slideContainer = slideContainer,
                         slide = slide,
                         state = when (position) {
-                            SlidePosition.PASSED -> slide.states - 1
+                            SlidePosition.PASSED -> slide.lastState
                             SlidePosition.CURRENT -> currentState.slideState
                             SlidePosition.COMING -> 0
                         },

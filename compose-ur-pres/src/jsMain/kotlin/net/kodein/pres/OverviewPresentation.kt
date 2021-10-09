@@ -44,7 +44,7 @@ internal fun OverviewPresentation(
             .forEach { delta ->
                 val slideIndex = currentState.slideIndex + delta
                 val slide = slides[currentState.slideIndex + delta]
-                val slideState = if (delta == 0 && moves <= 0 ) currentState.slideState else slide.stateInOverview ?: (slide.states - 1)
+                val slideState = if (delta == 0 && moves <= 0 ) currentState.slideState else slide.stateInOverview ?: slide.lastState
 
 
                 key("overview-slide-$slideIndex") {
@@ -139,11 +139,14 @@ internal fun OverviewPresentation(
                                 .copy(
                                     slideIndex = slideIndex,
                                     slideState = slideState,
-                                    slideStateCount = slide.states,
-                                    globalState = slides.subList(0, slideIndex).sumOf { it.states } + slideState,
-                                    slideConfig = slide.config,
-                                    slideAnimationDuration = Duration.ZERO
+                                    slideStateCount = slide.stateCount,
+                                    globalState = slides.subList(0, slideIndex).sumOf { it.stateCount } + slideState,
+                                    slideAnimationDuration = Duration.ZERO,
+                                    slideConfig = null,
                                 )
+                                .let {
+                                    it.copy(slideConfig = slide.config.invoke(it))
+                                }
                                 .presentationContainer {
                                     SlideHandler(
                                         currentState = currentState,

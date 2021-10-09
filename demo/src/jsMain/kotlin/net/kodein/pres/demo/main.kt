@@ -4,6 +4,7 @@ import net.kodein.pres.*
 import net.kodein.pres.sourcecode.installHighlightJsTheme
 import net.kodein.pres.util.InHeadRulesHolder
 import net.kodein.pres.util.d
+import net.kodein.pres.util.transition
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.B
 import org.jetbrains.compose.web.dom.H1
@@ -41,9 +42,16 @@ fun main() {
     presentationAppInBody(
         enableRouter = true,
         presentationContainer = { content ->
-            overlayedPresentationContainer({
-                classes(AppStyle.presentation)
-            }) {
+            overlayedPresentationContainer(
+                containerAttrs = {
+                    classes(AppStyle.presentation)
+                },
+                overlayAttrs = {
+                    style {
+                        transition { "background-color"(slideAnimationDuration.inWholeMilliseconds.ms) }
+                    }
+                }
+                ) {
                 content()
                 progress(Color("#651B20"))
             }

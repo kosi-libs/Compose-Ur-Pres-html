@@ -51,14 +51,13 @@ public fun OverlayAttrs(
 
 @Composable
 public fun PresentationState.overlayedPresentationContainer(
-    attrs: AttrBuilderContext<HTMLDivElement>? = null,
+    containerAttrs: AttrBuilderContext<HTMLDivElement>? = null,
+    overlayAttrs: AttrBuilderContext<HTMLDivElement>? = null,
     content: @Composable () -> Unit
 ) {
-    presentationContainer(attrs) {
+    presentationContainer(containerAttrs) {
         presentationContainer({
-            style {
-                transition { "background-color"(slideAnimationDuration.inWholeMilliseconds.ms) }
-            }
+            overlayAttrs?.invoke(this)
             (slideConfig as? OverlayAttrs)?.overlayAttrs?.invoke(this)
         }) {
             content()

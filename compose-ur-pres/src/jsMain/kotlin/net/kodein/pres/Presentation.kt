@@ -21,6 +21,7 @@ public data class PresentationState(
     val globalState: Int,
     val globalStateCount: Int,
     val slideAnimationDuration: Duration,
+    val moveBetweenSlides: Boolean,
     val slideConfig: Any?
 )
 
@@ -101,7 +102,7 @@ public fun Presentation(
                     val slideIndex = slides.indexOfFirst { it.name == slideName } .takeIf { it >= 0 } ?: slideName.toIntOrNull()
                     if (slideIndex != null && slideIndex >= 0 && slideIndex <= slides.lastIndex) {
                         val slide = slides[slideIndex]
-                        val slideState = path.getOrNull(1)?.toIntOrNull()?.takeIf { it >= 0 && it < slide.states } ?: 0
+                        val slideState = path.getOrNull(1)?.toIntOrNull()?.takeIf { it >= 0 && it < slide.stateCount } ?: 0
 
                         currentSlideIndex = slideIndex
                         currentSlideState = slideState
@@ -155,7 +156,7 @@ public fun Presentation(
                         currentSlideState = 0
                         lastMoveWasForward = true
                     }
-                    !fast && currentSlide != null && currentSlideState < (currentSlide!!.states - 1) -> currentSlideState += 1
+                    !fast && currentSlide != null && currentSlideState < currentSlide!!.lastState -> currentSlideState += 1
                     currentSlideIndex < slides.lastIndex -> {
                         currentSlideIndex += 1
                         currentSlideState = 0
@@ -174,7 +175,7 @@ public fun Presentation(
                     !fast && currentSlideState > 0 -> currentSlideState -= 1
                     currentSlideIndex > 0 -> {
                         currentSlideIndex -= 1
-                        currentSlideState = slides[currentSlideIndex].states - 1
+                        currentSlideState = slides[currentSlideIndex].lastState
                         lastMoveWasForward = false
                     }
                 }
@@ -207,16 +208,19 @@ public fun Presentation(
         val currentState = PresentationState(
             slideIndex = currentSlideIndex,
             slideState = currentSlideState,
-            slideStateCount = currentSlide?.states ?: 0,
+            slideStateCount = currentSlide?.stateCount ?: 0,
             globalSlideCount = slides.size,
-            globalState = slides.subList(0, currentSlideIndex).sumOf { it.states } + currentSlideState,
-            globalStateCount = slides.sumOf { it.states },
+            globalState = slides.subList(0, currentSlideIndex).sumOf { it.stateCount } + currentSlideState,
+            globalStateCount = slides.sumOf { it.stateCount },
             slideAnimationDuration = (
                     if (lastMoveWasForward) (currentSlide?.inAnimation ?: animation).appear.duration
                     else (currentSlide?.outAnimation ?: animation).disappear.duration
             ),
-            slideConfig = currentSlide?.config
-        )
+            moveBetweenSlides = (lastMoveWasForward && currentSlideState == 0) || (!lastMoveWasForward && currentSlideState == currentSlide?.lastState),
+            slideConfig = null
+        ).let {
+            it.copy(slideConfig = currentSlide?.config?.invoke(it))
+        }
 
         if (overview) {
             OverviewPresentation(

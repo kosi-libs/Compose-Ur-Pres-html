@@ -9,7 +9,7 @@ import net.kodein.pres.emojis.Emoji
 
 val router = Slide(
     "router",
-    states = 2
+    stateCount = 2
 ) { state ->
     H1 { Text("Have you noticed the address bar ${Emoji.point_up}?") }
     P({
@@ -21,7 +21,7 @@ val router = Slide(
 
 val overview = Slide(
     name = "overview",
-    states = 2
+    stateCount = 2
 ) { state ->
     H1 {
         Text( "Hit escape to see overview mode")

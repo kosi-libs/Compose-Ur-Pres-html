@@ -14,7 +14,7 @@ import org.jetbrains.compose.web.dom.Text
 
 val sourceCode = Slide(
     name = "source-code",
-    states = 5,
+    stateCount = 5,
 ) { state ->
 
     H1 {
