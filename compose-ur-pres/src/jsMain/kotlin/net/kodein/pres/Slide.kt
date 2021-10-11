@@ -5,7 +5,7 @@ import androidx.compose.runtime.remember
 
 public interface SlideConfig
 
-public class Slide(
+public data class Slide(
     public val name: String? = null,
     public val stateCount: Int = 1,
     public val stateInOverview: Int? = null,
