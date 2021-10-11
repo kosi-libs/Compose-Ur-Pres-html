@@ -49,7 +49,7 @@ public class SourceAnimationBuilder internal constructor() {
 public fun SourceCode(
     lang: String,
     code: String,
-    anims: SourceAnimationBuilder.() -> Unit
+    anims: SourceAnimationBuilder.() -> Unit = {}
 ) {
     Pre {
         Code({
