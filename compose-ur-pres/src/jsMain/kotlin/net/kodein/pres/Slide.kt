@@ -25,6 +25,10 @@ public class PresentationSlidesBuilder internal constructor() {
     public operator fun Slide.unaryPlus() {
         slides += this
     }
+
+    public operator fun Iterable<Slide>.unaryPlus() {
+        slides += this
+    }
 }
 
 public fun buildSlides(build: PresentationSlidesBuilder.() -> Unit): List<Slide> =
