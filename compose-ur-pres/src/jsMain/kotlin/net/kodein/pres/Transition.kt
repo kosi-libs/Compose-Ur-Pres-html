@@ -58,9 +58,11 @@ public object Transitions {
     public class FontGrow(private val duration: Duration): Transition {
         override val cssTransition: TransitionBuilder.() -> Unit = {
             "font-size"(duration.inWholeMilliseconds.ms)
+            "line-height"(duration.inWholeMilliseconds.ms)
         }
         override val hiddenStyle: StyleBuilder.() -> Unit = {
             fontSize(0.em)
+            lineHeight(0.em)
         }
     }
     public val fontGrow: Transition = FontGrow(milliseconds(300))
