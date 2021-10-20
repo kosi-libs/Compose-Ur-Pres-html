@@ -14,6 +14,7 @@ public data class Slide(
     public val inAnimation: Animation.Set? = null,
     public val outAnimation: Animation.Set? = null,
     public val config: PresentationState.() -> Any? = { null },
+    public val notes: @Composable (Int) -> Unit = {},
     public val content: @Composable (Int) -> Unit
 ) {
     public val lastState: Int get() = stateCount - 1

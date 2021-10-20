@@ -21,10 +21,11 @@ internal fun OverviewPresentation(
     slides: List<Slide>,
     defaultAnimation: Animation.Set,
     presentationSize: DOMRect?,
-    currentState: PresentationState
+    currentState: SlideState,
+    lastMoveWasForward: Boolean
 ) {
     var moves by remember { mutableStateOf(-1) }
-    LaunchedEffect(currentState.slideIndex) { moves += 1 }
+    LaunchedEffect(currentState.index) { moves += 1 }
 
     Div({
         classes(PresStyle.css {
@@ -40,11 +41,11 @@ internal fun OverviewPresentation(
         if (presentationSize == null) return@Div
 
         (-3..3)
-            .filter { currentState.slideIndex + it in slides.indices }
+            .filter { currentState.index + it in slides.indices }
             .forEach { delta ->
-                val slideIndex = currentState.slideIndex + delta
-                val slide = slides[currentState.slideIndex + delta]
-                val slideState = if (delta == 0 && moves <= 0 ) currentState.slideState else slide.stateInOverview ?: slide.lastState
+                val slideIndex = currentState.index + delta
+                val slide = slides[currentState.index + delta]
+                val slideState = if (delta == 0 && moves <= 0 ) currentState.state else slide.stateInOverview ?: slide.lastState
 
 
                 key("overview-slide-$slideIndex") {
@@ -135,21 +136,12 @@ internal fun OverviewPresentation(
                                 top((-hLoss / 2).px)
                             }
                         }) {
-                            currentState
-                                .copy(
-                                    slideIndex = slideIndex,
-                                    slideState = slideState,
-                                    slideStateCount = slide.stateCount,
-                                    globalState = slides.subList(0, slideIndex).sumOf { it.stateCount } + slideState,
-                                    slideAnimationDuration = Duration.ZERO,
-                                    slideConfig = null,
-                                )
-                                .let {
-                                    it.copy(slideConfig = slide.config.invoke(it))
-                                }
+                            val presentationState = SlideState(slideIndex, slideState)
+                                .presentationState(slides, lastMoveWasForward, defaultAnimation)
+                            presentationState
                                 .presentationContainer {
                                     SlideHandler(
-                                        currentState = currentState,
+                                        currentState = presentationState,
                                         slideContainer = slideContainer,
                                         slide = slide,
                                         state = slideState,

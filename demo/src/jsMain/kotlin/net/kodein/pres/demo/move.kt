@@ -5,28 +5,30 @@ import net.kodein.pres.Slide
 import org.jetbrains.compose.web.dom.*
 
 
-val move1 = Slide(
-    name = "move-1"
-) {
-    H1 {
-        Text("This is ComposeUrPres")
-    }
+val move = listOf(
+    Slide(
+        name = "move-1"
+    ) {
+        H1 {
+            Text("This is ComposeUrPres")
+        }
 
-    P {
-        B { Text("To advance the presentation") }
-        Text(": type Right Arrow, Bottom Arrow, Space, or Enter")
-    }
-}
+        P {
+            B { Text("To advance the presentation") }
+            Text(": type Right Arrow, Bottom Arrow, Space, or Enter")
+        }
+    },
 
-val move2 = Slide(
-    name = "move-2"
-) {
-    P {
-        B { Text("To move back") }
-        Text(": type Left Arrow, Top Arrow, or BackSpace")
-    }
+    Slide(
+        name = "move-2"
+    ) {
+        P {
+            B { Text("To move back") }
+            Text(": type Left Arrow, Top Arrow, or BackSpace")
+        }
 
-    P {
-        Small {  Text("Still, move forward to see the rest of the features ${Emoji.wink}") }
+        P {
+            Small {  Text("Still, move forward to see the rest of the features ${Emoji.wink}") }
+        }
     }
-}
+)

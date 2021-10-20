@@ -12,30 +12,32 @@ internal fun FullScreenPresentation(
     slides: List<Slide>,
     defaultAnimation: Animation.Set,
     presentationSize: DOMRect?,
-    currentState: PresentationState
+    currentState: SlideState,
+    lastMoveWasForward: Boolean
 ) {
-    currentState.presentationContainer {
+    val presentationState = currentState.presentationState(slides, lastMoveWasForward, defaultAnimation)
+    presentationState.presentationContainer {
             slides.forEachIndexed { index, slide ->
                 key("slide-$index") {
                     val position = when {
-                        index == currentState.slideIndex -> SlidePosition.CURRENT
-                        index > currentState.slideIndex -> SlidePosition.COMING
-                        index < currentState.slideIndex -> SlidePosition.PASSED
+                        index == currentState.index -> SlidePosition.CURRENT
+                        index > currentState.index -> SlidePosition.COMING
+                        index < currentState.index -> SlidePosition.PASSED
                         else -> error("?")
                     }
                     SlideHandler(
-                        currentState = currentState,
+                        currentState = presentationState,
                         slideContainer = slideContainer,
                         slide = slide,
                         state = when (position) {
                             SlidePosition.PASSED -> slide.lastState
-                            SlidePosition.CURRENT -> currentState.slideState
+                            SlidePosition.CURRENT -> currentState.state
                             SlidePosition.COMING -> 0
                         },
                         presentationSize = presentationSize,
                         position = position,
                         defaultAnimation = defaultAnimation,
-                        compose = abs(currentState.slideIndex - index) <= 1
+                        compose = abs(currentState.index - index) <= 1
                     )
                 }
             }

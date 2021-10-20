@@ -57,20 +57,12 @@ fun main() {
             }
         }
     ) {
-        +move1
-        +move2
-
+        +move
         +states
         +animations
-
         +sourceCode
-
-        +router
-        +overview
-        +presenter
-
+        +modes
         +inner
-
         +Slide("conclusion") {
             H1 { Text("That's it!") }
             P {

@@ -7,27 +7,17 @@ import net.kodein.pres.util.*
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.renderComposableInBody
+import org.w3c.dom.BroadcastChannel
 import org.w3c.dom.DOMRect
-import kotlin.time.Duration
+import kotlin.js.json
 import kotlin.time.Duration.Companion.milliseconds
 
 internal object PresStyle: StyleSheet(InHeadRulesHolder())
 
-public data class PresentationState(
-    val slideIndex: Int,
-    val slideState: Int,
-    val slideStateCount: Int,
-    val globalSlideCount: Int,
-    val globalState: Int,
-    val globalStateCount: Int,
-    val slideAnimationDuration: Duration,
-    val moveBetweenSlides: Boolean,
-    val slideConfig: Any?
-)
-
 public fun presentationAppInBody(
     animation: Animation.Set = Animations.Move(milliseconds(600)),
     enableRouter: Boolean = false,
+    enableSync: Boolean = true,
     presentationContainer: Container = { presentationContainer(content = it) },
     slideContainer: Container = { slideContainer(content = it) },
     slides: PresentationSlidesBuilder.() -> Unit
@@ -46,6 +36,7 @@ public fun presentationAppInBody(
                 slides = rememberSlides { slides() },
                 animation = animation,
                 enableRouter = enableRouter,
+                enableSync = enableSync,
                 presentationContainer = presentationContainer,
                 slideContainer = slideContainer
             )
@@ -60,31 +51,31 @@ public fun Presentation(
     slides: List<Slide>,
     animation: Animation.Set = Animations.Move(milliseconds(600)),
     enableRouter: Boolean = false,
+    enableSync: Boolean = true,
     presentationContainer: Container = { presentationContainer(content = it) },
     slideContainer: Container = { slideContainer(content = it) }
 ) {
-    var currentSlideIndex by remember { mutableStateOf(0) }
-    var currentSlideState by remember { mutableStateOf(0) }
+    var current by remember { mutableStateOf(SlideState(0, 0)) }
     var overview by remember { mutableStateOf(false) }
-    var presenter: String? by remember { mutableStateOf(null) }
+    var presenter by remember { mutableStateOf(false) }
 
-    val currentSlide by rememberUpdatedState(slides.getOrNull(currentSlideIndex))
+    val currentSlide by rememberUpdatedState(slides.getOrNull(current.index))
 
     if (enableRouter) {
         var locationChecked by remember { mutableStateOf(false) }
         if (locationChecked) {
-            LaunchedEffect(currentSlideIndex, currentSlideState, overview, presenter) {
+            LaunchedEffect(current.index, current.state, overview, presenter) {
                 window.location.hash = buildString {
-                    append(currentSlide?.name ?: currentSlideIndex)
-                    if (currentSlideState > 0) {
+                    append(currentSlide?.name ?: current.index)
+                    if (current.state > 0) {
                         append("/")
-                        append(currentSlideState)
+                        append(current.state)
                     }
-                    if (overview || presenter != null) {
+                    if (overview || presenter) {
                         append("?")
                         append(listOfNotNull(
                             if (overview) "overview" else null,
-                            if (presenter != null) "presenter=$presenter" else null
+                            if (presenter) "presenter" else null
                         ).joinToString("&"))
                     }
                 }
@@ -92,7 +83,7 @@ public fun Presentation(
         }
 
         DisposableEffect(null) {
-            val listener = FEventListener l@ {
+            val listener = FEventListener {
                 val hash = window.location.hash.removePrefix("#")
                 if (hash.isNotEmpty()) {
                     val array = window.location.hash.removePrefix("#").split("?")
@@ -104,21 +95,45 @@ public fun Presentation(
                         val slide = slides[slideIndex]
                         val slideState = path.getOrNull(1)?.toIntOrNull()?.takeIf { it >= 0 && it < slide.stateCount } ?: 0
 
-                        currentSlideIndex = slideIndex
-                        currentSlideState = slideState
+                        current = SlideState(slideIndex, slideState)
                     }
 
                     val modes = (array.getOrNull(1)?.split("&") ?: emptyList())
                         .map { it.split("=", limit = 2) }
                         .associate { it[0] to it.getOrElse(1) { "" } }
                     overview = "overview" in modes
-                    presenter = modes["presenter"]
+                    presenter = "presenter" in modes
                 }
                 locationChecked = true
             }
             listener()
             window.addEventListener("hashchange", listener)
             onDispose { window.removeEventListener("hashchange", listener) }
+        }
+    }
+
+    if (enableSync) {
+        val channel = remember { BroadcastChannel("pres-pos") }
+
+        var noBroadcast by remember { mutableStateOf(false) }
+
+        DisposableEffect(null) {
+            channel.onmessage = { e ->
+                val new = e.data.let { SlideState(it.asDynamic().i as Int, it.asDynamic().s as Int) }
+                if (current != new) {
+                    noBroadcast = true
+                    current = new
+                }
+                Unit
+            }
+            onDispose {
+                channel.onmessage = {}
+            }
+        }
+
+        LaunchedEffect(current) {
+            if (!noBroadcast) channel.postMessage(json("i" to current.index, "s" to current.state))
+            noBroadcast = false
         }
     }
 
@@ -150,34 +165,24 @@ public fun Presentation(
 
         DisposableRefEffect {
             fun goNext(fast: Boolean) {
-                when {
-                    fast && currentSlideIndex < slides.lastIndex -> {
-                        currentSlideIndex += 1
-                        currentSlideState = 0
-                        lastMoveWasForward = true
+                lastMoveWasForward = true
+                if (fast) {
+                    if (current.index < slides.lastIndex) {
+                        current = SlideState(current.index + 1, 0)
                     }
-                    !fast && currentSlide != null && currentSlideState < currentSlide!!.lastState -> currentSlideState += 1
-                    currentSlideIndex < slides.lastIndex -> {
-                        currentSlideIndex += 1
-                        currentSlideState = 0
-                        lastMoveWasForward = true
-                    }
+                } else {
+                    current = current.next(slides)
                 }
             }
 
             fun goPrev(fast: Boolean) {
-                when {
-                    fast && currentSlideIndex > 0 -> {
-                        currentSlideIndex -= 1
-                        currentSlideState = 0
-                        lastMoveWasForward = false
+                lastMoveWasForward = false
+                if (fast) {
+                    if (current.index > 0) {
+                        current = SlideState(current.index - 1, 0)
                     }
-                    !fast && currentSlideState > 0 -> currentSlideState -= 1
-                    currentSlideIndex > 0 -> {
-                        currentSlideIndex -= 1
-                        currentSlideState = slides[currentSlideIndex].lastState
-                        lastMoveWasForward = false
-                    }
+                } else {
+                    current = current.prev(slides)
                 }
             }
 
@@ -190,14 +195,7 @@ public fun Presentation(
                         overview -> overview = false
                         else -> goNext(e.altKey)
                     }
-                    KeyCodes.ofChar('p') -> {
-                        presenter = when (presenter) {
-                            null -> "with-notes"
-                            "with-notes" -> "big"
-                            "big" -> null
-                            else -> null
-                        }
-                    }
+                    KeyCodes.ofChar('p') -> presenter = !presenter
                     else -> {}
                 }
             }
@@ -205,43 +203,34 @@ public fun Presentation(
             onDispose {}
         }
 
-        val currentState = PresentationState(
-            slideIndex = currentSlideIndex,
-            slideState = currentSlideState,
-            slideStateCount = currentSlide?.stateCount ?: 0,
-            globalSlideCount = slides.size,
-            globalState = slides.subList(0, currentSlideIndex).sumOf { it.stateCount } + currentSlideState,
-            globalStateCount = slides.sumOf { it.stateCount },
-            slideAnimationDuration = (
-                    if (lastMoveWasForward) (currentSlide?.inAnimation ?: animation).appear.duration
-                    else (currentSlide?.outAnimation ?: animation).disappear.duration
-            ),
-            moveBetweenSlides = (lastMoveWasForward && currentSlideState == 0) || (!lastMoveWasForward && currentSlideState == currentSlide?.lastState),
-            slideConfig = null
-        ).let {
-            it.copy(slideConfig = currentSlide?.config?.invoke(it))
-        }
-
-        if (overview) {
-            OverviewPresentation(
+        when {
+            overview -> OverviewPresentation(
                 presentationContainer = presentationContainer,
                 slideContainer = slideContainer,
                 slides = slides,
                 defaultAnimation = animation,
                 presentationSize = presentationSize,
-                currentState = currentState
+                currentState = current,
+                lastMoveWasForward = lastMoveWasForward
             )
-        }
-        if (!overview) {
-            FullScreenPresentation(
+            presenter -> PresenterPresentation(
                 presentationContainer = presentationContainer,
                 slideContainer = slideContainer,
                 slides = slides,
                 defaultAnimation = animation,
                 presentationSize = presentationSize,
-                currentState = currentState
+                currentState = current,
+                lastMoveWasForward = lastMoveWasForward
+            )
+            else -> FullScreenPresentation(
+                presentationContainer = presentationContainer,
+                slideContainer = slideContainer,
+                slides = slides,
+                defaultAnimation = animation,
+                presentationSize = presentationSize,
+                currentState = current,
+                lastMoveWasForward = lastMoveWasForward
             )
         }
     }
 }
-
