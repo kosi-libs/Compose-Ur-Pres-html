@@ -68,7 +68,7 @@ internal sealed class Node {
             append(text.prependIndent("  ".repeat(indent) + "   |"))
         }
     }
-    class Span(val name: String, val attrs: AttrBuilderContext<HTMLSpanElement>?, val nodes: List<Node>): Node() {
+    class Span(val name: String, val classNames: List<String>, val nodes: List<Node>): Node() {
         fun text(): String = nodes.joinToString("") {
             when (it) {
                 is Text -> it.text
@@ -88,7 +88,7 @@ internal sealed class Node {
     override fun toString(): String = toString(0)
 }
 
-internal fun fromSegmentTokens(tokens: List<Token>, attrs: Map<String, AttrBuilderContext<HTMLSpanElement>>, position: Int): Pair<List<Node>, Int> {
+internal fun fromSegmentTokens(tokens: List<Token>, position: Int): Pair<List<Node>, Int> {
     val list = ArrayList<Node>()
     var pos = position
     while (pos < tokens.size) {
@@ -98,13 +98,10 @@ internal fun fromSegmentTokens(tokens: List<Token>, attrs: Map<String, AttrBuild
                 pos += 1
             }
             is Token.Open -> {
-                val (innerSegments, endPos) = fromSegmentTokens(tokens, attrs, pos + 1)
+                val (innerSegments, endPos) = fromSegmentTokens(tokens, pos + 1)
                 list.add(Node.Span(
                     name = "segment-${token.name}",
-                    attrs = {
-                        classes("segment-${token.name}")
-                        attrs[token.name]?.invoke(this)
-                    },
+                    classNames = listOf("segment-${token.name}"),
                     nodes = innerSegments
                 ))
                 pos = endPos
@@ -117,8 +114,8 @@ internal fun fromSegmentTokens(tokens: List<Token>, attrs: Map<String, AttrBuild
     return list to pos
 }
 
-internal fun fromSegmentTokens(tokens: List<Token>, attrs: Map<String, AttrBuilderContext<HTMLSpanElement>>): List<Node> =
-    fromSegmentTokens(tokens, attrs, 0).first
+internal fun fromSegmentTokens(tokens: List<Token>): List<Node> =
+    fromSegmentTokens(tokens, 0).first
 
 
 internal fun fromHljsDom(nodes: NodeList): List<Node> =
@@ -127,7 +124,7 @@ internal fun fromHljsDom(nodes: NodeList): List<Node> =
             is DomText -> Node.Text(node.wholeText)
             is HTMLSpanElement -> Node.Span(
                 name = node.className,
-                attrs = { classes(*node.classList.asList().toTypedArray()) },
+                classNames = node.classList.asList(),
                 nodes = fromHljsDom(node.childNodes)
             )
             else -> error("Unsupported DOM node from HLJS: $${node::class.simpleName}")
@@ -152,14 +149,14 @@ internal fun merge(left: MutableList<Node>, right: MutableList<Node>): List<Node
         fun leftSpan() {
             lNode as Node.Span
 
-            list += Node.Span(lNode.name, lNode.attrs, merge(lNode.nodes.toMutableList(), right))
+            list += Node.Span(lNode.name, lNode.classNames, merge(lNode.nodes.toMutableList(), right))
             left.removeFirst()
         }
 
         fun rightSpan() {
             rNode as Node.Span
 
-            list += Node.Span(rNode.name, rNode.attrs, merge(left, rNode.nodes.toMutableList()))
+            list += Node.Span(rNode.name, rNode.classNames, merge(left, rNode.nodes.toMutableList()))
             right.removeFirst()
         }
 
@@ -200,7 +197,12 @@ internal fun merge(left: List<Node>, right: List<Node>): List<Node> {
 }
 
 @Composable
-internal fun NodeList(nodes: List<Node>, unDimmed: List<String>, unDim: Boolean = false) {
+internal fun NodeList(
+    nodes: List<Node>,
+    attrs: Map<String, AttrBuilderContext<HTMLSpanElement>>,
+    unDimmed: List<String>,
+    unDim: Boolean = false
+) {
     nodes.forEach {
         when (it) {
             is Node.Text -> Span({
@@ -209,7 +211,10 @@ internal fun NodeList(nodes: List<Node>, unDimmed: List<String>, unDim: Boolean 
                     if (!unDim && unDimmed.isNotEmpty()) opacity(0.05)
                 }
             }) { Text(it.text) }
-            is Node.Span -> Span({ it.attrs?.invoke(this) }) { NodeList(it.nodes, unDimmed, unDim || it.name in unDimmed) }
+            is Node.Span -> Span({
+                classes(*it.classNames.toTypedArray())
+                attrs[it.name]?.invoke(this)
+            }) { NodeList(it.nodes, attrs, unDimmed, unDim || it.name in unDimmed) }
         }
     }
 }

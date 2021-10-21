@@ -25,7 +25,7 @@ val sourceCode = Slide(
         lang = "kotlin",
         code = """
             @Composable
-            fun <T> Content(state: Int = $state, value: T) {
+            fun <T> Content(state: Int = 0, value: T) {
                 Text(«str:"«cw:Compose Web»«cup:ComposeUrPres» is cool!"»)
             «com:    // Code animations are amazing!
             »}

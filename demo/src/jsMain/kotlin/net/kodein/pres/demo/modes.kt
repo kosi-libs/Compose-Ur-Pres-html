@@ -46,7 +46,7 @@ val modes = listOf(
         notes = {
             Text("This slide has notes!")
         }
-    ) { state ->
+    ) {
         H1 {
             Text( "Hit 'p' to toggle presenter mode!")
         }
@@ -54,7 +54,7 @@ val modes = listOf(
 
     Slide(
         name = "synchronized",
-    ) { state ->
+    ) {
         H1 {
             Text( "Synchronized")
         }

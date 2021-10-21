@@ -40,7 +40,7 @@ public class SourceAnimationBuilder internal constructor() {
 
     public operator fun String.invoke(block: SegmentAnimationBuilder.() -> Unit) {
         val builder = SegmentAnimationBuilder().apply(block)
-        builder.attrs?.let { attrs[this] = it }
+        builder.attrs?.let { attrs["segment-$this"] = it }
         if (builder.unDimmed) unDimmed.add("segment-$this")
     }
 }
@@ -56,25 +56,27 @@ public fun SourceCode(
             classes("lang-$lang", "hljs")
         }) {
             var nodeList: List<Node> by remember { mutableStateOf(emptyList()) }
-            var unDimmed: List<String> by remember { mutableStateOf(emptyList()) }
+            var builder by remember { mutableStateOf(SourceAnimationBuilder().apply(anims)) }
 
             DisposableRefEffect {
-                val composition = renderComposable(it) { NodeList(nodeList, unDimmed) }
+                val composition = renderComposable(it) { NodeList(nodeList, builder.attrs, builder.unDimmed) }
                 onDispose { composition.dispose() }
             }
 
             LaunchedEffect(lang, code) {
-                val builder = SourceAnimationBuilder().apply(anims)
-
                 val (tokens, cleanCode) = tokenize(code)
-                val segments = fromSegmentTokens(tokens, builder.attrs)
+                val segments = fromSegmentTokens(tokens)
 
                 val container = document.createElement("span") as HTMLElement
                 container.innerHTML = hljs.highlight(lang, cleanCode).value
                 val highlighted = fromHljsDom(container.childNodes)
 
                 nodeList = merge(highlighted, segments)
-                unDimmed = builder.unDimmed
+//                unDimmed = builder.unDimmed
+            }
+
+            DomSideEffect {
+                builder = SourceAnimationBuilder().apply(anims)
             }
         }
     }
