@@ -29,7 +29,7 @@ internal fun PresenterPresentation(
         Div({
             classes(PresStyle.css {
                 position(Position.Absolute)
-                top(20.percent)
+                top(1.percent)
                 left(1.percent)
                 width(60.percent)
                 height(60.percent)

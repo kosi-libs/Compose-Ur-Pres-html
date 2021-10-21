@@ -211,7 +211,8 @@ public fun Presentation(
                 defaultAnimation = animation,
                 presentationSize = presentationSize,
                 currentState = current,
-                lastMoveWasForward = lastMoveWasForward
+                lastMoveWasForward = lastMoveWasForward,
+                presenter = presenter
             )
             presenter -> PresenterPresentation(
                 presentationContainer = presentationContainer,
