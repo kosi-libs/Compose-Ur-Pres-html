@@ -63,21 +63,18 @@ public fun SourceCode(
                 onDispose { composition.dispose() }
             }
 
-            DomSideEffect {
+            LaunchedEffect(lang, code) {
                 val builder = SourceAnimationBuilder().apply(anims)
 
                 val (tokens, cleanCode) = tokenize(code)
                 val segments = fromSegmentTokens(tokens, builder.attrs)
-//                println(Node.Span("SEGMENTS", {}, segments))
 
                 val container = document.createElement("span") as HTMLElement
                 container.innerHTML = hljs.highlight(lang, cleanCode).value
                 val highlighted = fromHljsDom(container.childNodes)
-//                println(Node.Span("HIGHLIGHTED", {}, highlighted))
 
                 nodeList = merge(highlighted, segments)
                 unDimmed = builder.unDimmed
-//                println(Node.Span("MERGED", {}, nodeList))
             }
         }
     }

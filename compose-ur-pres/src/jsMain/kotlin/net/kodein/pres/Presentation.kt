@@ -110,6 +110,8 @@ public fun Presentation(
             window.addEventListener("hashchange", listener)
             onDispose { window.removeEventListener("hashchange", listener) }
         }
+
+        if (!locationChecked) return
     }
 
     if (enableSync) {

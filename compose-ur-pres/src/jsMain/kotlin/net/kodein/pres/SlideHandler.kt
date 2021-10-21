@@ -33,8 +33,14 @@ internal fun SlideHandler(
     defaultAnimation: Animation.Set,
     compose: Boolean
 ) {
+    fun getAnimation(p: SlidePosition) = when (p) {
+        PASSED -> (slide.outAnimation ?: defaultAnimation).appear.prepare(BACKWARD) + hide
+        CURRENT -> null
+        COMING -> (slide.inAnimation ?: defaultAnimation).appear.prepare(FORWARD) + hide
+    }
+
     var previousState: SlidePosition? by remember { mutableStateOf(null) }
-    var animationStyle: Style? by remember { mutableStateOf(null) }
+    var animationStyle: Style? by remember { mutableStateOf(getAnimation(position)) }
     var animating by remember { mutableStateOf(false) }
 
     LaunchedEffect(position) {
@@ -54,11 +60,7 @@ internal fun SlideHandler(
                 COMING to CURRENT -> executeAnimation((slide.inAnimation ?: defaultAnimation).appear, FORWARD)
             }
 
-            animationStyle = when (nState) {
-                PASSED -> (slide.outAnimation ?: defaultAnimation).appear.prepare(BACKWARD) + hide
-                CURRENT -> null
-                COMING -> (slide.inAnimation ?: defaultAnimation).appear.prepare(FORWARD) + hide
-            }
+            animationStyle = getAnimation(nState)
         }
         previousState = position
     }

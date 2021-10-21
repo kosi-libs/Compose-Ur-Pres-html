@@ -15,7 +15,6 @@ import kotlin.math.sign
 
 
 private const val miniSlideFactor = 0.8
-private const val numberOfSlides = 5
 
 @Composable
 internal fun OverviewPresentation(
