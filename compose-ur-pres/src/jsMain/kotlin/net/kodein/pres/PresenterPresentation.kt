@@ -2,7 +2,7 @@ package net.kodein.pres
 
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.web.css.*
-import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.dom.*
 import org.w3c.dom.DOMRect
 
 
@@ -72,12 +72,26 @@ internal fun PresenterPresentation(
                 bottom(1.percent)
                 right(1.percent)
                 width(37.percent)
-                height(59.percent)
+                height(58.percent)
                 fontSize(1.5.em)
                 overflow("auto")
             })
         }) {
             slides.getOrNull(currentState.index)?.notes?.invoke(currentState.state)
+        }
+
+        Div({
+            classes(PresStyle.css {
+                position(Position.Absolute)
+                bottom(1.percent)
+                left(1.percent)
+                width(60.percent)
+                height(37.percent)
+                display(DisplayStyle.Flex)
+                flexDirection(FlexDirection.Column)
+            })
+        }) {
+            PresenterTools(slides, currentState)
         }
     }
 }
