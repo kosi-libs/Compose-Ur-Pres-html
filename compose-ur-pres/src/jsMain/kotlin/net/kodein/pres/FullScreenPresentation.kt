@@ -15,7 +15,13 @@ internal fun FullScreenPresentation(
     currentState: SlideState,
     lastMoveWasForward: Boolean
 ) {
-    val presentationState = currentState.presentationState(slides, lastMoveWasForward, defaultAnimation)
+    val presentationState = currentState.presentationState(
+        slides,
+        lastMoveWasForward,
+        defaultAnimation,
+        presentationSize,
+        slides.getOrNull(currentState.index)?.rect
+    )
     presentationState.presentationContainer {
             slides.forEachIndexed { index, slide ->
                 key("slide-$index") {
@@ -34,7 +40,6 @@ internal fun FullScreenPresentation(
                             SlidePosition.CURRENT -> currentState.state
                             SlidePosition.COMING -> 0
                         },
-                        presentationSize = presentationSize,
                         position = position,
                         defaultAnimation = defaultAnimation,
                         compose = abs(currentState.index - index) <= 1

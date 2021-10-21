@@ -2,6 +2,7 @@ package net.kodein.pres
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import org.w3c.dom.DOMRect
 
 public interface SlideConfig
 
@@ -18,6 +19,7 @@ public data class Slide(
     public val content: @Composable (Int) -> Unit
 ) {
     public val lastState: Int get() = stateCount - 1
+    public val rect: DOMRect = DOMRect(width = width.toDouble(), height = height.toDouble())
 }
 
 public class PresentationSlidesBuilder internal constructor() {

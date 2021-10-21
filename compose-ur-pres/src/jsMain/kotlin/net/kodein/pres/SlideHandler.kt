@@ -28,7 +28,6 @@ internal fun SlideHandler(
     slideContainer: Container,
     slide: Slide,
     state: Int,
-    presentationSize: DOMRect?,
     position: SlidePosition,
     defaultAnimation: Animation.Set,
     compose: Boolean
@@ -75,12 +74,11 @@ internal fun SlideHandler(
             zIndex(if (position == CURRENT) 2 else 1)
         })
         style {
-            if (presentationSize != null) {
-                left(((presentationSize.width - slide.width) / 2).px)
-                top(((presentationSize.height - slide.height) / 2).px)
+            if (currentState.containerSize != null) {
+                left(((currentState.containerSize.width - slide.width) / 2).px)
+                top(((currentState.containerSize.height - slide.height) / 2).px)
 
-                val factor = min(presentationSize.width / slide.width, presentationSize.height / slide.height)
-                transform { scale(factor) }
+                transform { scale(currentState.slideScaleFactor) }
             }
         }
 

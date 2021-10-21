@@ -181,7 +181,7 @@ internal fun OverviewPresentation(
                             }
                         }) {
                             val presentationState = SlideState(slideIndex, slideState)
-                                .presentationState(slides, lastMoveWasForward, defaultAnimation)
+                                .presentationState(slides, lastMoveWasForward, defaultAnimation, presentationSize, slide.rect)
                             presentationState
                                 .presentationContainer {
                                     SlideHandler(
@@ -189,7 +189,6 @@ internal fun OverviewPresentation(
                                         slideContainer = slideContainer,
                                         slide = slide,
                                         state = slideState,
-                                        presentationSize = presentationSize,
                                         position = SlidePosition.CURRENT,
                                         defaultAnimation = defaultAnimation,
                                         compose = true

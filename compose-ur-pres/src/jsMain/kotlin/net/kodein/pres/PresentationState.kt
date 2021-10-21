@@ -1,5 +1,7 @@
 package net.kodein.pres
 
+import org.w3c.dom.DOMRect
+import kotlin.math.min
 import kotlin.time.Duration
 
 
@@ -42,7 +44,10 @@ public data class PresentationState(
     val globalStateCount: Int,
     val slideAnimationDuration: Duration,
     val moveBetweenSlides: Boolean,
-    val slideConfig: Any?
+    val slideConfig: Any?,
+    val containerSize: DOMRect?,
+    val slideSize: DOMRect?,
+    val slideScaleFactor: Double
 )
 
 public val PresentationState.slideLastState: Int get() = slideStateCount - 1
@@ -50,7 +55,9 @@ public val PresentationState.slideLastState: Int get() = slideStateCount - 1
 internal fun SlideState.presentationState(
     slides: List<Slide>,
     lastMoveWasForward: Boolean,
-    defaultAnimation: Animation.Set
+    defaultAnimation: Animation.Set,
+    containerSize: DOMRect?,
+    slideSize: DOMRect?
 ): PresentationState {
     val currentSlide = slides.getOrNull(index)
 
@@ -65,7 +72,12 @@ internal fun SlideState.presentationState(
                 else (currentSlide?.outAnimation ?: defaultAnimation).disappear.duration
                 ),
         moveBetweenSlides = (lastMoveWasForward && state == 0) || (!lastMoveWasForward && state == currentSlide?.lastState),
-        slideConfig = null
+        slideConfig = null,
+        containerSize = containerSize,
+        slideSize = slideSize,
+        slideScaleFactor =
+            if (containerSize == null || slideSize == null) 0.0
+            else min((containerSize.width) / slideSize.width, (containerSize.height) / slideSize.height)
     ).let {
         it.copy(slideConfig = currentSlide?.config?.invoke(it))
     }
