@@ -113,7 +113,7 @@ internal fun PresenterTools(
             classes(PresStyle.css {
                 display(DisplayStyle.Flex)
                 flexDirection(FlexDirection.Column)
-                (descendant(self, type("button"))) {
+                "button" {
                     padding(0.4.em, 0.6.em)
                     margin(0.4.em)
                     backgroundColor(Color.darkgray)

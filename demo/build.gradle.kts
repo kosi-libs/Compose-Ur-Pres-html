@@ -24,6 +24,7 @@ kotlin {
             languageSettings {
                 optIn("kotlin.RequiresOptIn")
                 optIn("org.jetbrains.compose.web.ExperimentalComposeWebApi")
+                optIn("org.jetbrains.compose.web.ExperimentalComposeWebStyleApi")
                 optIn("kotlin.time.ExperimentalTime")
             }
         }
