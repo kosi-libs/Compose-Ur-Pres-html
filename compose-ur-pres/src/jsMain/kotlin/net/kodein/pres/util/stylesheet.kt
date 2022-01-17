@@ -9,6 +9,15 @@ import org.jetbrains.compose.web.css.*
 import org.w3c.dom.css.*
 
 
+private external class CSSKeyframesRule: CSSRule {
+    val name: String
+    val cssRules: CSSRuleList
+}
+
+private inline fun CSSKeyframesRule.appendRule(cssRule: String) {
+    this.asDynamic().appendRule(cssRule)
+}
+
 internal fun clearCSSRules(sheet: CSSStyleSheet) {
     repeat(sheet.cssRules.length) {
         sheet.deleteRule(0)
@@ -83,7 +92,7 @@ private fun fillRule(
     }
 }
 
-internal fun setProperty(
+private fun setProperty(
     style: CSSStyleDeclaration,
     name: String,
     value: StylePropertyValue
@@ -91,7 +100,7 @@ internal fun setProperty(
     style.setProperty(name, value.toString())
 }
 
-internal fun setVariable(
+private fun setVariable(
     style: CSSStyleDeclaration,
     name: String,
     value: StylePropertyValue

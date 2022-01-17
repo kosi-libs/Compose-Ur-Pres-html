@@ -13,7 +13,7 @@ import kotlin.time.Duration.Companion.seconds
 val states = Slide(
     name = "states",
     stateCount = 5,
-    outAnimation = Animations.Flip(seconds(2))
+    outAnimation = Animations.Flip(2.seconds)
 ) { state ->
 
     H1 {

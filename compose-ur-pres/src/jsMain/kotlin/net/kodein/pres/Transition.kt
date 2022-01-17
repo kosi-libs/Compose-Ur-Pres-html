@@ -40,7 +40,7 @@ public object Transitions {
             opacity(0)
         }
     }
-    public val fade: Transition = Fade(milliseconds(300))
+    public val fade: Transition = Fade(300.milliseconds)
 
     public class Grow(private val duration: Duration) : Transition {
         override val cssTransition: TransitionBuilder.() -> Unit = {
@@ -53,7 +53,7 @@ public object Transitions {
             transform { scale(0.25) }
         }
     }
-    public val grow: Transition = Grow(milliseconds(500))
+    public val grow: Transition = Grow(500.milliseconds)
 
     public class FontGrow(private val duration: Duration): Transition {
         override val cssTransition: TransitionBuilder.() -> Unit = {
@@ -65,7 +65,7 @@ public object Transitions {
             lineHeight(0.em)
         }
     }
-    public val fontGrow: Transition = FontGrow(milliseconds(300))
+    public val fontGrow: Transition = FontGrow(300.milliseconds)
 
     public class Stamp(private val duration: Duration) : Transition {
         override val cssTransition: TransitionBuilder.() -> Unit = {
@@ -77,6 +77,6 @@ public object Transitions {
             transform { scale(1.8) }
         }
     }
-    public val stamp: Transition = Stamp(Duration.milliseconds(400))
+    public val stamp: Transition = Stamp(400.milliseconds)
 
 }

@@ -7,10 +7,6 @@ import androidx.compose.runtime.setValue
 import kotlinx.browser.window
 import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.css.*
-import org.jetbrains.compose.web.css.selectors.CSSSelector.PseudoClass.Companion.active
-import org.jetbrains.compose.web.css.selectors.descendant
-import org.jetbrains.compose.web.css.selectors.plus
-import org.jetbrains.compose.web.css.selectors.type
 import org.jetbrains.compose.web.dom.*
 
 

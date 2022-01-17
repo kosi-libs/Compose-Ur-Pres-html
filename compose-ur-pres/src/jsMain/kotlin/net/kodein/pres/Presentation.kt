@@ -15,7 +15,7 @@ import kotlin.time.Duration.Companion.milliseconds
 internal object PresStyle: StyleSheet(InHeadRulesHolder())
 
 public fun presentationAppInBody(
-    animation: Animation.Set = Animations.Move(milliseconds(600)),
+    animation: Animation.Set = Animations.Move(600.milliseconds),
     enableRouter: Boolean = false,
     enableSync: Boolean = true,
     presentationContainer: Container = { presentationContainer(content = it) },
@@ -49,7 +49,7 @@ public typealias Container = @Composable PresentationState.(@Composable () -> Un
 @Composable
 public fun Presentation(
     slides: List<Slide>,
-    animation: Animation.Set = Animations.Move(milliseconds(600)),
+    animation: Animation.Set = Animations.Move(600.milliseconds),
     enableRouter: Boolean = false,
     enableSync: Boolean = true,
     presentationContainer: Container = { presentationContainer(content = it) },

@@ -16,7 +16,7 @@ import kotlin.time.Duration.Companion.seconds
 val animations = Slide(
     name = "container",
     stateCount = 2,
-    inAnimation = Animations.Flip(seconds(2)),
+    inAnimation = Animations.Flip(2.seconds),
     config = {
         OverlayAttrs {
             classes(AppStyle.css {

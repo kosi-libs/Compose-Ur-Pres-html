@@ -22,6 +22,7 @@ public class InHeadRulesHolder : CSSRulesHolder {
         rules.add(cssRule)
 
         (style.sheet as? CSSStyleSheet)?.let { cssStylesheet ->
+            clearCSSRules(cssStylesheet)
             setCSSRules(cssStylesheet, cssRules)
         }
     }
