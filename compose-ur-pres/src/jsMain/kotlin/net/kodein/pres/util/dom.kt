@@ -24,3 +24,7 @@ internal object KeyCodes {
 
     fun ofChar(c: Char) = c.uppercaseChar().code
 }
+
+internal object MouseButtonCodes {
+    const val MAIN: Short = 0
+}

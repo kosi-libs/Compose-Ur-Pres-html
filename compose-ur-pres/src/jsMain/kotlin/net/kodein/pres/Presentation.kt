@@ -201,6 +201,16 @@ public fun Presentation(
                     else -> {}
                 }
             }
+
+            it.onclick = onclick@ { e ->
+                if (overview) return@onclick onDispose {}
+
+                when(e.button) {
+                    MouseButtonCodes.MAIN -> goNext(e.altKey)
+                    else -> {}
+                }
+            }
+
             it.focus()
             onDispose {}
         }
