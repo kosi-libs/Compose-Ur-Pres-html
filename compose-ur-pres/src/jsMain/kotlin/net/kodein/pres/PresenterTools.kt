@@ -9,6 +9,7 @@ import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
 import org.kodein.cic.css
+import org.w3c.dom.HTMLElement
 
 
 private object Timer {
@@ -123,11 +124,20 @@ internal fun PresenterTools(
                 }
             }
         }) {
-            if (Timer.isRunning()) Button({ onClick { Timer.stop() } }) { Text("PAUSE") }
-            else Button({ onClick { Timer.start() } }) { Text("START") }
+            Button({
+                onClick {
+                    if (Timer.isRunning()) Timer.stop()
+                    else Timer.start()
+                    ((it.target as HTMLElement).parentElement as HTMLElement).focus()
+                }
+            }) { Text(if (Timer.isRunning()) "PAUSE" else "START") }
+
             Button({
                 if (Timer.isRunning()) disabled()
-                onClick { Timer.clear() }
+                onClick {
+                    Timer.clear()
+                    ((it.target as HTMLElement).parentElement as HTMLElement).focus()
+                }
             }) { Text("RESET") }
         }
         P({
