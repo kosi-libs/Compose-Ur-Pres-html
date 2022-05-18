@@ -18,7 +18,7 @@ public fun ContainerAttrs(attrs: AttrBuilderContext<HTMLDivElement>? = null): Co
 }
 
 @Composable
-public fun PresentationState.presentationContainer(
+public fun PresentationState.defaultPresentationContainer(
     attrs: AttrBuilderContext<HTMLDivElement>? = null,
     content: @Composable () -> Unit
 ) {
@@ -51,13 +51,13 @@ public fun OverlayAttrs(
 }
 
 @Composable
-public fun PresentationState.overlayedPresentationContainer(
+public fun PresentationState.defaultOverlayedPresentationContainer(
     containerAttrs: AttrBuilderContext<HTMLDivElement>? = null,
     overlayAttrs: AttrBuilderContext<HTMLDivElement>? = null,
     content: @Composable () -> Unit
 ) {
-    presentationContainer(containerAttrs) {
-        presentationContainer({
+    defaultPresentationContainer(containerAttrs) {
+        defaultPresentationContainer({
             overlayAttrs?.invoke(this)
             (slideConfig as? OverlayAttrs)?.overlayAttrs?.invoke(this)
         }) {
@@ -88,7 +88,7 @@ public fun PresentationState.progress(
 
 @Suppress("unused")
 @Composable
-public fun PresentationState.slideContainer(
+public fun PresentationState.defaultSlideContainer(
     attrs: AttrBuilderContext<HTMLDivElement>? = null,
     content: @Composable () -> Unit
 ) {

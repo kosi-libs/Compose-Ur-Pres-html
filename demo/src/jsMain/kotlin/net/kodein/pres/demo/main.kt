@@ -17,8 +17,8 @@ fun main() {
     presentationAppInBody(
         enableRouter = true,
         syncId = "demo",
-        presentationContainer = { content ->
-            overlayedPresentationContainer(
+        presentationContainer = { attrs, content ->
+            defaultOverlayedPresentationContainer(
                 containerAttrs = {
                     css {
                         backgroundColor(Color("#230720"))
@@ -41,6 +41,7 @@ fun main() {
                             textDecoration("none")
                         }
                     }
+                    attrs?.invoke(this)
                 },
                 overlayAttrs = {
                     style {

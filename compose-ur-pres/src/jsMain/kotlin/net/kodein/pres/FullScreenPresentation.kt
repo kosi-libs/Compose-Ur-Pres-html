@@ -22,7 +22,7 @@ internal fun FullScreenPresentation(
         presentationSize,
         slides.getOrNull(currentState.index)?.rect
     )
-    presentationState.presentationContainer {
+    presentationState.presentationContainer(null) {
             slides.forEachIndexed { index, slide ->
                 key("slide-$index") {
                     val position = when {

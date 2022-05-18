@@ -5,11 +5,13 @@ import kotlinx.browser.document
 import kotlinx.browser.window
 import net.kodein.pres.util.*
 import org.jetbrains.compose.web.css.*
+import org.jetbrains.compose.web.dom.AttrBuilderContext
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.renderComposableInBody
 import org.kodein.cic.css
 import org.w3c.dom.BroadcastChannel
 import org.w3c.dom.DOMRect
+import org.w3c.dom.HTMLDivElement
 import kotlin.js.json
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -18,8 +20,9 @@ public fun presentationAppInBody(
     animation: Animation.Set = Animations.Move(600.milliseconds),
     enableRouter: Boolean = false,
     syncId: String? = "",
-    presentationContainer: Container = { presentationContainer(content = it) },
-    slideContainer: Container = { slideContainer(content = it) },
+    nextOnClick: Boolean = true,
+    presentationContainer: Container = { a, c -> defaultPresentationContainer(a, c) },
+    slideContainer: Container = { a, c -> defaultSlideContainer(a, c) },
     slides: PresentationSlidesBuilder.() -> Unit
 ) {
     document.body!!.style.margin = "0"
@@ -37,6 +40,7 @@ public fun presentationAppInBody(
                 animation = animation,
                 enableRouter = enableRouter,
                 syncId = syncId,
+                nextOnClick = nextOnClick,
                 presentationContainer = presentationContainer,
                 slideContainer = slideContainer
             )
@@ -44,7 +48,7 @@ public fun presentationAppInBody(
     }
 }
 
-public typealias Container = @Composable PresentationState.(@Composable () -> Unit) -> Unit
+public typealias Container = @Composable PresentationState.(AttrBuilderContext<HTMLDivElement>?, @Composable () -> Unit) -> Unit
 
 @Composable
 public fun Presentation(
@@ -52,8 +56,9 @@ public fun Presentation(
     animation: Animation.Set = Animations.Move(600.milliseconds),
     enableRouter: Boolean = false,
     syncId: String? = "",
-    presentationContainer: Container = { presentationContainer(content = it) },
-    slideContainer: Container = { slideContainer(content = it) }
+    nextOnClick: Boolean = true,
+    presentationContainer: Container = { a, c -> defaultPresentationContainer(a, c) },
+    slideContainer: Container = { a, c -> defaultSlideContainer(a, c) },
 ) {
     var current by remember { mutableStateOf(SlideState(0, 0)) }
     var overview by remember { mutableStateOf(false) }
@@ -172,18 +177,18 @@ public fun Presentation(
 
         var lastMoveWasForward by remember { mutableStateOf(true) }
 
-        DisposableEffect(null) {
-            fun goNext(fast: Boolean) {
-                lastMoveWasForward = true
-                if (fast) {
-                    if (current.index < slides.lastIndex) {
-                        current = SlideState(current.index + 1, 0)
-                    }
-                } else {
-                    current = current.next(slides)
+        fun goNext(fast: Boolean) {
+            lastMoveWasForward = true
+            if (fast) {
+                if (current.index < slides.lastIndex) {
+                    current = SlideState(current.index + 1, 0)
                 }
+            } else {
+                current = current.next(slides)
             }
+        }
 
+        DisposableEffect(null) {
             fun goPrev(fast: Boolean) {
                 lastMoveWasForward = false
                 if (fast) {
@@ -208,21 +213,32 @@ public fun Presentation(
                     else -> {}
                 }
             }
+
             scopeElement.focus()
-
-
-            it.onclick = onclick@ { e ->
-                if (overview) return@onclick onDispose {}
-
-                when(e.button) {
-                    MouseButtonCodes.MAIN -> goNext(e.altKey)
-                    else -> {}
-                }
-            }
-
-            it.focus()
             onDispose {}
         }
+
+        val presentationContainerWithClick: Container =
+            if (nextOnClick) ({ attrs, content ->
+                    presentationContainer({
+                        attrs?.invoke(this)
+                        onClick { e ->
+                            if (overview) return@onClick
+
+                            when(e.button) {
+                                MouseButtonCodes.MAIN -> {
+                                    goNext(e.altKey)
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                }
+                                else -> {}
+                            }
+                        }
+                        css {
+                            property("user-select", "none")
+                        }
+                    }, content)
+            }) else presentationContainer
 
         when {
             overview -> OverviewPresentation(
@@ -236,7 +252,7 @@ public fun Presentation(
                 presenter = presenter
             )
             presenter -> PresenterPresentation(
-                presentationContainer = presentationContainer,
+                presentationContainer = presentationContainerWithClick,
                 slideContainer = slideContainer,
                 slides = slides,
                 defaultAnimation = animation,
@@ -245,7 +261,7 @@ public fun Presentation(
                 lastMoveWasForward = lastMoveWasForward
             )
             else -> FullScreenPresentation(
-                presentationContainer = presentationContainer,
+                presentationContainer = presentationContainerWithClick,
                 slideContainer = slideContainer,
                 slides = slides,
                 defaultAnimation = animation,

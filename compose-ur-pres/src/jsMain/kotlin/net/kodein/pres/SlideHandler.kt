@@ -93,7 +93,7 @@ internal fun SlideHandler(
                 animationStyle?.invoke(this)
             }
         }) {
-            currentState.slideContainer {
+            currentState.slideContainer(null) {
                 slide.content(state)
             }
         }
