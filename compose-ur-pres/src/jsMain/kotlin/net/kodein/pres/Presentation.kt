@@ -7,17 +7,17 @@ import net.kodein.pres.util.*
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.renderComposableInBody
+import org.kodein.cic.css
 import org.w3c.dom.BroadcastChannel
 import org.w3c.dom.DOMRect
 import kotlin.js.json
 import kotlin.time.Duration.Companion.milliseconds
 
-internal object PresStyle: StyleSheet(InHeadRulesHolder())
 
 public fun presentationAppInBody(
     animation: Animation.Set = Animations.Move(600.milliseconds),
     enableRouter: Boolean = false,
-    enableSync: Boolean = true,
+    syncId: String? = "",
     presentationContainer: Container = { presentationContainer(content = it) },
     slideContainer: Container = { slideContainer(content = it) },
     slides: PresentationSlidesBuilder.() -> Unit
@@ -27,16 +27,16 @@ public fun presentationAppInBody(
     renderComposableInBody {
         // The presentation must be rendered into its own div and will take 100% of its size
         Div({
-            classes(PresStyle.css {
+            css {
                 width(100.vw)
                 height(100.vh)
-            })
+            }
         }) {
             Presentation(
                 slides = rememberSlides { slides() },
                 animation = animation,
                 enableRouter = enableRouter,
-                enableSync = enableSync,
+                syncId = syncId,
                 presentationContainer = presentationContainer,
                 slideContainer = slideContainer
             )
@@ -51,7 +51,7 @@ public fun Presentation(
     slides: List<Slide>,
     animation: Animation.Set = Animations.Move(600.milliseconds),
     enableRouter: Boolean = false,
-    enableSync: Boolean = true,
+    syncId: String? = "",
     presentationContainer: Container = { presentationContainer(content = it) },
     slideContainer: Container = { slideContainer(content = it) }
 ) {
@@ -114,8 +114,12 @@ public fun Presentation(
         if (!locationChecked) return
     }
 
-    if (enableSync) {
-        val channel = remember { BroadcastChannel("pres-pos") }
+    if (syncId != null) {
+        val channel = remember {
+            val code = syncId.takeIf { it.isNotBlank() }
+                ?: "${window.location.host} - ${window.location.pathname}".hashCode().toUInt().toString(radix = 16)
+            BroadcastChannel("pres-pos-$code")
+        }
 
         var noBroadcast by remember { mutableStateOf(false) }
 
@@ -134,26 +138,29 @@ public fun Presentation(
         }
 
         LaunchedEffect(current) {
-            if (!noBroadcast) channel.postMessage(json("i" to current.index, "s" to current.state))
+            if (!noBroadcast) {
+                val message = json("i" to current.index, "s" to current.state, "c" to 42)
+                channel.postMessage(message)
+            }
             noBroadcast = false
         }
     }
 
     Div({
-        classes(PresStyle.css {
+        css {
             width(100.percent)
             height(100.percent)
             position(Position.Relative)
             outline("none")
             overflow("hidden")
-        })
+        }
         tabIndex(0)
     }) {
         var presentationSize: DOMRect? by remember { mutableStateOf(null) }
 
-        DisposableRefEffect {
+        DisposableEffect(null) {
             val listener = FEventListener {
-                presentationSize = DOMRect(0.0, 0.0, it.offsetWidth.toDouble(), it.offsetHeight.toDouble())
+                presentationSize = DOMRect(0.0, 0.0, scopeElement.offsetWidth.toDouble(), scopeElement.offsetHeight.toDouble())
             }
             window.addEventListener("resize", listener)
             listener()
@@ -165,7 +172,7 @@ public fun Presentation(
 
         var lastMoveWasForward by remember { mutableStateOf(true) }
 
-        DisposableRefEffect {
+        DisposableEffect(null) {
             fun goNext(fast: Boolean) {
                 lastMoveWasForward = true
                 if (fast) {
@@ -188,7 +195,7 @@ public fun Presentation(
                 }
             }
 
-            it.onkeydown = { e ->
+            scopeElement.onkeydown = { e ->
                 when (e.keyCode) {
                     KeyCodes.RIGHT, KeyCodes.DOWN, KeyCodes.SPACE -> goNext(overview || e.altKey)
                     KeyCodes.LEFT, KeyCodes.UP, KeyCodes.BACKSPACE -> goPrev(overview || e.altKey)
@@ -201,7 +208,8 @@ public fun Presentation(
                     else -> {}
                 }
             }
-            it.focus()
+            scopeElement.focus()
+
             onDispose {}
         }
 

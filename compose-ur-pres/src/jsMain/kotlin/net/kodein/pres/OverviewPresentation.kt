@@ -7,6 +7,7 @@ import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H3
 import org.jetbrains.compose.web.dom.H4
 import org.jetbrains.compose.web.dom.Text
+import org.kodein.cic.css
 import org.w3c.dom.DOMRect
 import kotlin.math.abs
 import kotlin.math.max
@@ -31,7 +32,7 @@ internal fun OverviewPresentation(
     LaunchedEffect(currentState.index) { moves += 1 }
 
     Div({
-        classes(PresStyle.css {
+        css {
             width(100.percent)
             height(100.percent)
             position(Position.Absolute)
@@ -39,7 +40,7 @@ internal fun OverviewPresentation(
             left(0.px)
             overflow("hidden")
             backgroundColor(Color.silver)
-        })
+        }
     }) {
         if (presentationSize == null) return@Div
 
@@ -58,12 +59,12 @@ internal fun OverviewPresentation(
                 }
 
             Div({
-                classes(PresStyle.css {
+                css {
                     position(Position.Absolute)
                     top(0.em)
                     left(0.em)
                     width(100.percent)
-                })
+                }
                 style {
                     height(((presentationSize.height - smallSlideBiggestHeight) / 2).px - 2.em)
                 }
@@ -73,13 +74,13 @@ internal fun OverviewPresentation(
         } else null
         
         Div({
-            classes(PresStyle.css {
+            css {
                 width(100.percent)
                 height(100.percent)
                 position(Position.Relative)
                 top(0.px)
                 left(0.px)
-            })
+            }
 
             style {
                 if (smallSlideBiggestHeight != null) {
@@ -113,7 +114,7 @@ internal fun OverviewPresentation(
                     val miniSlideHeight = smallSlideHeight * miniSlideFactor
 
                     H3({
-                        classes(PresStyle.css {
+                        css {
                             height(2.cssRem)
                             position(Position.Absolute)
                             property("transform-origin", "bottom center")
@@ -125,7 +126,7 @@ internal fun OverviewPresentation(
                             fontFamily("sans-serif")
                             color(Color.black)
                             textAlign("center")
-                        })
+                        }
                         style {
                             width(smallSlideWidth.px)
                             property("top",
@@ -148,10 +149,10 @@ internal fun OverviewPresentation(
                     }
 
                     Div({
-                        classes(PresStyle.css {
+                        css {
                             position(Position.Absolute)
                             property("box-shadow", "0px 0px 2rem 0rem black")
-                        })
+                        }
                         style {
                             width(slideFullWidth.px)
                             height(slideFullHeight.px)
@@ -170,9 +171,9 @@ internal fun OverviewPresentation(
                         }
                     }) {
                         Div({
-                            classes(PresStyle.css {
+                            css {
                                 position(Position.Absolute)
-                            })
+                            }
                             style {
                                 width(presentationSize.width.px)
                                 height(presentationSize.height.px)
@@ -198,7 +199,7 @@ internal fun OverviewPresentation(
                     }
 
                     H4({
-                        classes(PresStyle.css {
+                        css {
                             height(1.5.cssRem)
                             position(Position.Absolute)
                             property("transform-origin", "top center")
@@ -207,7 +208,7 @@ internal fun OverviewPresentation(
                             fontFamily("sans-serif")
                             color(Color.black)
                             textAlign("center")
-                        })
+                        }
                         style {
                             width(smallSlideWidth.px)
                             property("top",
@@ -235,7 +236,7 @@ internal fun OverviewPresentation(
 
         if (presenter) {
             Div({
-                classes(PresStyle.css {
+                css {
                     position(Position.Absolute)
                     bottom(1.percent)
                     right(1.percent)
@@ -243,13 +244,13 @@ internal fun OverviewPresentation(
                     height(58.percent)
                     fontSize(1.5.em)
                     overflow("auto")
-                })
+                }
             }) {
                 slides.getOrNull(currentState.index)?.notes?.invoke(currentState.state)
             }
 
             Div({
-                classes(PresStyle.css {
+                css {
                     position(Position.Absolute)
                     bottom(1.percent)
                     left(1.percent)
@@ -257,7 +258,7 @@ internal fun OverviewPresentation(
                     height(37.percent)
                     display(DisplayStyle.Flex)
                     flexDirection(FlexDirection.Column)
-                })
+                }
             }) {
                 PresenterTools(slides, currentState)
             }

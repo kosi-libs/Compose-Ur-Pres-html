@@ -5,6 +5,7 @@ import net.kodein.pres.util.transition
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.AttrBuilderContext
 import org.jetbrains.compose.web.dom.Div
+import org.kodein.cic.css
 import org.w3c.dom.HTMLDivElement
 
 
@@ -13,7 +14,7 @@ public interface ContainerAttrs {
 }
 
 public fun ContainerAttrs(attrs: AttrBuilderContext<HTMLDivElement>? = null): ContainerAttrs = object : ContainerAttrs {
-    public override val containerAttrs: AttrBuilderContext<HTMLDivElement>? get() = attrs
+    override val containerAttrs: AttrBuilderContext<HTMLDivElement>? get() = attrs
 }
 
 @Composable
@@ -22,14 +23,14 @@ public fun PresentationState.presentationContainer(
     content: @Composable () -> Unit
 ) {
     Div({
-        classes(PresStyle.css {
+        css {
             width(100.percent)
             height(100.percent)
             position(Position.Absolute)
             top(0.px)
             left(0.px)
             overflow("hidden")
-        })
+        }
         attrs?.invoke(this)
         if (slideConfig is ContainerAttrs) slideConfig.containerAttrs?.invoke(this)
     }) {
@@ -71,27 +72,28 @@ public fun PresentationState.progress(
     height: CSSNumeric = 0.3.cssRem
 ) {
     Div({
-        classes(PresStyle.css {
+        css {
             height(height)
             position(Position.Absolute)
             left(0.px)
             bottom(0.px)
             backgroundColor(color)
             transition { "width"(0.3.s) }
-        })
+        }
         style {
             width((globalState.toDouble() / (globalStateCount - 1).toDouble() * 100.0).percent)
         }
     }) {}
 }
 
+@Suppress("unused")
 @Composable
 public fun PresentationState.slideContainer(
     attrs: AttrBuilderContext<HTMLDivElement>? = null,
     content: @Composable () -> Unit
 ) {
     Div({
-        classes(PresStyle.css {
+        css {
             width(100.percent - 4.em)
             height(100.percent - 4.em)
             padding(2.em)
@@ -99,7 +101,7 @@ public fun PresentationState.slideContainer(
             flexDirection(FlexDirection.Column)
             justifyContent(JustifyContent.Center)
             alignItems(AlignItems.Center)
-        })
+        }
         attrs?.invoke(this)
     }) {
         content()

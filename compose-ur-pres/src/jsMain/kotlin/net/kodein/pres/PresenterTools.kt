@@ -8,6 +8,7 @@ import kotlinx.browser.window
 import org.jetbrains.compose.web.attributes.disabled
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
+import org.kodein.cic.css
 
 
 private object Timer {
@@ -39,27 +40,27 @@ internal fun PresenterTools(
     currentState: SlideState
 ) {
     Div({
-        classes(PresStyle.css {
+        css {
             display(DisplayStyle.Flex)
             flexDirection(FlexDirection.Row)
-        })
+        }
     }) {
         Div({
-            classes(PresStyle.css {
+            css {
                 display(DisplayStyle.Flex)
                 flexDirection(FlexDirection.Row)
                 flex(1)
-            })
+            }
         }) {
             val currentSlide = slides[currentState.index]
             for (i in 0..currentSlide.lastState) {
                 Div({
-                    classes(PresStyle.css {
+                    css {
                         flex(1)
                         marginRight(1.em)
                         height(0.8.em)
                         borderRadius(0.4.em)
-                    })
+                    }
                     style {
                         when {
                             i == currentSlide.lastState -> {}
@@ -76,19 +77,19 @@ internal fun PresenterTools(
             }
         }
         Div({
-            classes(PresStyle.css {
+            css {
                 fontFamily("sans-serif")
                 textAlign("center")
-            })
+            }
         }) {
             B {
                 Text("${currentState.index}..${slides.lastIndex}")
             }
             Br()
             Small({
-                classes(PresStyle.css {
+                css {
                     color(Color.gray)
-                })
+                }
             }) {
                 val pastStates = slides.subList(0, currentState.index).sumOf { it.stateCount }
                 val totalStates = slides.sumOf { it.stateCount }
@@ -98,15 +99,15 @@ internal fun PresenterTools(
     }
 
     Div({
-        classes(PresStyle.css {
+        css {
             display(DisplayStyle.Flex)
             flexDirection(FlexDirection.Row)
             justifyContent(JustifyContent.Center)
             alignItems(AlignItems.Center)
-        })
+        }
     }) {
         Div({
-            classes(PresStyle.css {
+            css {
                 display(DisplayStyle.Flex)
                 flexDirection(FlexDirection.Column)
                 "button" {
@@ -120,7 +121,7 @@ internal fun PresenterTools(
                         backgroundColor(Color.gray)
                     }
                 }
-            })
+            }
         }) {
             if (Timer.isRunning()) Button({ onClick { Timer.stop() } }) { Text("PAUSE") }
             else Button({ onClick { Timer.start() } }) { Text("START") }
@@ -130,18 +131,18 @@ internal fun PresenterTools(
             }) { Text("RESET") }
         }
         P({
-            classes(PresStyle.css {
+            css {
                 width(5.em)
                 fontSize(3.em)
                 textAlign("center")
                 fontFamily("sans-serif")
-            })
+            }
         }) {
             B { Text((Timer.seconds / 60).toString().padStart(2, '0')) }
             Span({
-                classes(PresStyle.css {
+                css {
                     color(Color.gray)
-                })
+                }
             }) { Text(" : ") }
             Text((Timer.seconds % 60).toString().padStart(2, '0'))
         }

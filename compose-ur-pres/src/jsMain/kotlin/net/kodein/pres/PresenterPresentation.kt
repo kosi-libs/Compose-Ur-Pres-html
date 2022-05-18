@@ -3,6 +3,7 @@ package net.kodein.pres
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
+import org.kodein.cic.css
 import org.w3c.dom.DOMRect
 
 
@@ -18,22 +19,22 @@ internal fun PresenterPresentation(
     lastMoveWasForward: Boolean
 ) {
     Div({
-        classes(PresStyle.css {
+        css {
             backgroundColor(Color.silver)
             top(0.percent)
             left(0.percent)
             width(100.percent)
             height(100.percent)
-        })
+        }
     }) {
         Div({
-            classes(PresStyle.css {
+            css {
                 position(Position.Absolute)
                 top(1.percent)
                 left(1.percent)
                 width(60.percent)
                 height(60.percent)
-            })
+            }
         }) {
             FullScreenPresentation(
                 presentationContainer = presentationContainer,
@@ -47,13 +48,13 @@ internal fun PresenterPresentation(
         }
 
         Div({
-            classes(PresStyle.css {
+            css {
                 position(Position.Absolute)
                 top(1.percent)
                 right(1.percent)
                 width(37.percent)
                 height(37.percent)
-            })
+            }
         }) {
             FullScreenPresentation(
                 presentationContainer = presentationContainer,
@@ -67,7 +68,7 @@ internal fun PresenterPresentation(
         }
 
         Div({
-            classes(PresStyle.css {
+            css {
                 position(Position.Absolute)
                 bottom(1.percent)
                 right(1.percent)
@@ -75,13 +76,13 @@ internal fun PresenterPresentation(
                 height(58.percent)
                 fontSize(1.5.em)
                 overflow("auto")
-            })
+            }
         }) {
             slides.getOrNull(currentState.index)?.notes?.invoke(currentState.state)
         }
 
         Div({
-            classes(PresStyle.css {
+            css {
                 position(Position.Absolute)
                 bottom(1.percent)
                 left(1.percent)
@@ -89,7 +90,7 @@ internal fun PresenterPresentation(
                 height(37.percent)
                 display(DisplayStyle.Flex)
                 flexDirection(FlexDirection.Column)
-            })
+            }
         }) {
             PresenterTools(slides, currentState)
         }

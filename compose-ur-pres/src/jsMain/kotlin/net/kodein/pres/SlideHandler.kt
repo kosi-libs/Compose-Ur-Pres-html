@@ -2,16 +2,16 @@ package net.kodein.pres
 
 import androidx.compose.runtime.*
 import kotlinx.coroutines.launch
+import net.kodein.pres.Animation.Direction.BACKWARD
+import net.kodein.pres.Animation.Direction.FORWARD
 import net.kodein.pres.SlidePosition.*
-import net.kodein.pres.Animation.Direction.*
 import net.kodein.pres.util.Style
 import net.kodein.pres.util.Visibility
 import net.kodein.pres.util.visibility
 import net.kodein.pres.util.zIndex
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.Div
-import org.w3c.dom.DOMRect
-import kotlin.math.min
+import org.kodein.cic.css
 
 
 internal enum class SlidePosition {
@@ -67,12 +67,12 @@ internal fun SlideHandler(
     if (!compose && !animating) return
 
     Div({
-        classes(PresStyle.css {
+        css {
             position(Position.Absolute)
             width(slide.width.px)
             height(slide.height.px)
             zIndex(if (position == CURRENT) 2 else 1)
-        })
+        }
         style {
             if (currentState.containerSize != null) {
                 left(((currentState.containerSize.width - slide.width) / 2).px)
@@ -84,10 +84,11 @@ internal fun SlideHandler(
 
     }) {
         Div({
-            classes(PresStyle.css {
+            classes("slide")
+            css {
                 width(100.percent)
                 height(100.percent)
-            }, "slide")
+            }
             style {
                 animationStyle?.invoke(this)
             }

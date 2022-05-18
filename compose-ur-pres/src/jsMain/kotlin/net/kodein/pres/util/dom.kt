@@ -4,9 +4,7 @@ import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
 
 
-internal fun FEventListener(handler: () -> Unit) = FEventListenerHandler(handler)
-
-internal class FEventListenerHandler(private val handler: () -> Unit) : EventListener {
+internal class FEventListener(private val handler: () -> Unit) : EventListener {
     operator fun invoke() { handler() }
     override fun handleEvent(event: Event) { handler() }
     override fun toString(): String = "EventListenerHandler($handler)"

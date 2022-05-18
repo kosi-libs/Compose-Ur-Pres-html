@@ -4,7 +4,7 @@ import org.jetbrains.compose.web.ExperimentalComposeWebApi
 import org.jetbrains.compose.web.css.*
 
 
-public typealias Style = StyleBuilder.() -> Unit
+public typealias Style = StyleScope.() -> Unit
 
 public typealias CSSTimeValue = CSSSizeValue<out CSSUnitTime>
 
@@ -33,20 +33,20 @@ private class TransitionBuilderImplementation : TransitionBuilder {
 }
 
 @ExperimentalComposeWebApi
-public fun StyleBuilder.transition(transitionContext: TransitionBuilder.() -> Unit) {
+public fun StyleScope.transition(transitionContext: TransitionBuilder.() -> Unit) {
     val transitionBuilder = TransitionBuilderImplementation()
     property("transition", transitionBuilder.apply(transitionContext).toString())
 }
 
-public fun StyleBuilder.transformOrigin(value: String) {
+public fun StyleScope.transformOrigin(value: String) {
     property("transform-origin", value)
 }
 
-public fun StyleBuilder.zIndex(value: Int) {
+public fun StyleScope.zIndex(value: Int) {
     property("z-index", value)
 }
 
-public interface Visibility: StylePropertyEnum {
+public interface Visibility : StylePropertyEnum {
     public companion object {
         public inline val Visible: Visibility get() = Visibility("ease")
         public inline val Hidden: Visibility get() = Visibility("hidden")
@@ -61,6 +61,6 @@ public interface Visibility: StylePropertyEnum {
 @Suppress("NOTHING_TO_INLINE")
 public inline fun Visibility(value: String): Visibility = value.unsafeCast<Visibility>()
 
-public fun StyleBuilder.visibility(value: Visibility) {
+public fun StyleScope.visibility(value: Visibility) {
     property("visibility", value)
 }

@@ -58,8 +58,8 @@ public fun SourceCode(
             var nodeList: List<Node> by remember { mutableStateOf(emptyList()) }
             var builder by remember { mutableStateOf(SourceAnimationBuilder().apply(anims)) }
 
-            DisposableRefEffect {
-                val composition = renderComposable(it) { NodeList(nodeList, builder.attrs, builder.unDimmed) }
+            DisposableEffect(null) {
+                val composition = renderComposable(scopeElement) { NodeList(nodeList, builder.attrs, builder.unDimmed) }
                 onDispose { composition.dispose() }
             }
 
@@ -75,7 +75,7 @@ public fun SourceCode(
 //                unDimmed = builder.unDimmed
             }
 
-            DomSideEffect {
+            SideEffect {
                 builder = SourceAnimationBuilder().apply(anims)
             }
         }

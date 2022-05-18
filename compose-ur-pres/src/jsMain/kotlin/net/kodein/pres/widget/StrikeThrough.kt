@@ -1,23 +1,23 @@
 package net.kodein.pres.widget
 
 import androidx.compose.runtime.Composable
-import net.kodein.pres.PresStyle
 import net.kodein.pres.util.transition
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Span
+import org.kodein.cic.css
 
 
 @Composable
 public fun StrikeThrough(strikeColor: CSSColorValue, shown: Boolean, content: @Composable () -> Unit) {
     Span({
-        classes(PresStyle.css {
+        css {
             display(DisplayStyle.InlineBlock)
             position(Position.Relative)
-        })
+        }
     }) {
         Div({
-            classes(PresStyle.css {
+            css {
                 position(Position.Absolute)
                 height(0.1.em)
                 backgroundColor(strikeColor)
@@ -27,7 +27,7 @@ public fun StrikeThrough(strikeColor: CSSColorValue, shown: Boolean, content: @C
                     "opacity"(1.s)
                     "width"(1.s)
                 }
-            })
+            }
             style {
                 if (shown) {
                     width(100.percent)
@@ -39,9 +39,9 @@ public fun StrikeThrough(strikeColor: CSSColorValue, shown: Boolean, content: @C
             }
         })
         Span({
-            classes(PresStyle.css {
+            css {
                 transition { "opacity"(1.s) }
-            })
+            }
             style {
                 if (shown) { opacity(0.6) }
             }
