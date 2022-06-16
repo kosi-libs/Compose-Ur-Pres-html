@@ -16,8 +16,10 @@ internal object KeyCodes {
     const val ESCAPE = 27
     const val LEFT = 37
     const val UP = 38
+    const val PAGE_UP = 33
     const val RIGHT = 39
     const val DOWN = 40
+    const val PAGE_DOWN = 34
     const val SPACE = 32
 
     fun ofChar(c: Char) = c.uppercaseChar().code

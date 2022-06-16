@@ -202,8 +202,10 @@ public fun Presentation(
 
             scopeElement.onkeydown = { e ->
                 when (e.keyCode) {
-                    KeyCodes.RIGHT, KeyCodes.DOWN, KeyCodes.SPACE -> goNext(overview || e.altKey)
-                    KeyCodes.LEFT, KeyCodes.UP, KeyCodes.BACKSPACE -> goPrev(overview || e.altKey)
+                    KeyCodes.RIGHT, KeyCodes.DOWN, KeyCodes.SPACE, KeyCodes.PAGE_DOWN ->
+                        goNext(overview || e.altKey)
+                    KeyCodes.LEFT, KeyCodes.UP, KeyCodes.BACKSPACE, KeyCodes.PAGE_UP ->
+                        goPrev(overview || e.altKey)
                     KeyCodes.ESCAPE -> overview = !overview
                     KeyCodes.ENTER -> when {
                         overview -> overview = false
