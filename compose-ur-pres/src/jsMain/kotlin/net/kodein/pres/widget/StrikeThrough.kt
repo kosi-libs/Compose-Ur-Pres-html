@@ -1,7 +1,6 @@
 package net.kodein.pres.widget
 
 import androidx.compose.runtime.Composable
-import net.kodein.pres.util.transition
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Span
@@ -23,9 +22,9 @@ public fun StrikeThrough(strikeColor: CSSColorValue, shown: Boolean, content: @C
                 backgroundColor(strikeColor)
                 left(0.em)
                 property("top", 50.percent - 0.05.em)
-                transition {
-                    "opacity"(1.s)
-                    "width"(1.s)
+                transitions {
+                    "opacity" { duration = 1.s }
+                    "width" { duration = 1.s }
                 }
             }
             style {
@@ -40,7 +39,9 @@ public fun StrikeThrough(strikeColor: CSSColorValue, shown: Boolean, content: @C
         })
         Span({
             css {
-                transition { "opacity"(1.s) }
+                transitions {
+                    "opacity" { duration = 1.s }
+                }
             }
             style {
                 if (shown) { opacity(0.6) }

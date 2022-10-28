@@ -5,7 +5,6 @@ import net.kodein.pres.Animation.Direction
 import net.kodein.pres.Animation.Direction.BACKWARD
 import net.kodein.pres.Animation.Direction.FORWARD
 import net.kodein.pres.util.Style
-import net.kodein.pres.util.transition
 import org.jetbrains.compose.web.css.*
 import kotlin.time.Duration
 
@@ -45,8 +44,8 @@ public object Animations {
             }
             override suspend fun execute(direction: Direction, setStyle: (Style) -> Unit) {
                 setStyle {
-                    transition {
-                        "opacity"(duration.inWholeMilliseconds.ms)
+                    transitions {
+                        "opacity" { duration = this@In.duration.inWholeMilliseconds.ms }
                     }
                     opacity(1.0)
                 }
@@ -56,8 +55,8 @@ public object Animations {
         public class Out(override val duration: Duration) : Animation.Disappear {
             override suspend fun execute(direction: Direction, setStyle: (Style) -> Unit) {
                 setStyle {
-                    transition {
-                        "opacity"(duration.inWholeMilliseconds.ms)
+                    transitions {
+                        "opacity" { duration = this@Out.duration.inWholeMilliseconds.ms }
                     }
                     opacity(0.0)
                 }
@@ -81,9 +80,9 @@ public object Animations {
             }
             override suspend fun execute(direction: Direction, setStyle: (Style) -> Unit) {
                 setStyle {
-                    transition {
-                        "transform"(duration.inWholeMilliseconds.ms)
-                        "opacity"(duration.inWholeMilliseconds.ms)
+                    transitions {
+                        "transform" { duration = this@In.duration.inWholeMilliseconds.ms }
+                        "opacity" { duration = this@In.duration.inWholeMilliseconds.ms }
                     }
                     transform {
                         translateX(0.percent)
@@ -96,9 +95,9 @@ public object Animations {
         public class Out(override val duration: Duration) : Animation.Disappear {
             override suspend fun execute(direction: Direction, setStyle: (Style) -> Unit) {
                 setStyle {
-                    transition {
-                        "transform"(duration.inWholeMilliseconds.ms)
-                        "opacity"(duration.inWholeMilliseconds.ms)
+                    transitions {
+                        "transform" { duration = this@Out.duration.inWholeMilliseconds.ms }
+                        "opacity" { duration = this@Out.duration.inWholeMilliseconds.ms }
                     }
                     transform {
                         translateX(
@@ -131,9 +130,12 @@ public object Animations {
             }
             override suspend fun execute(direction: Direction, setStyle: (Style) -> Unit) {
                 setStyle {
-                    transition {
-                        "transform"(duration.inWholeMilliseconds.ms)
-                        "opacity"(duration.inWholeMilliseconds.ms, AnimationTimingFunction.EaseInOut)
+                    transitions {
+                        "transform" { duration = this@In.duration.inWholeMilliseconds.ms }
+                        "opacity" {
+                            duration = this@In.duration.inWholeMilliseconds.ms
+                            timingFunction = AnimationTimingFunction.EaseInOut
+                        }
                     }
                     transform {
                         perspective(90.em)
@@ -146,9 +148,9 @@ public object Animations {
         public class Out(override val duration: Duration) : Animation.Disappear {
             override suspend fun execute(direction: Direction, setStyle: (Style) -> Unit) {
                 setStyle {
-                    transition {
-                        "transform"(duration.inWholeMilliseconds.ms)
-                        "opacity"(duration.inWholeMilliseconds.ms)
+                    transitions {
+                        "transform" { duration = this@Out.duration.inWholeMilliseconds.ms }
+                        "opacity" { duration = this@Out.duration.inWholeMilliseconds.ms }
                     }
                     transform {
                         perspective(90.em)

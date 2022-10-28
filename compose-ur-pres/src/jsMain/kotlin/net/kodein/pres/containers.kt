@@ -1,7 +1,6 @@
 package net.kodein.pres
 
 import androidx.compose.runtime.Composable
-import net.kodein.pres.util.transition
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.AttrBuilderContext
 import org.jetbrains.compose.web.dom.Div
@@ -78,7 +77,9 @@ public fun PresentationState.progress(
             left(0.px)
             bottom(0.px)
             backgroundColor(color)
-            transition { "width"(0.3.s) }
+            transitions {
+                "width" { duration = 0.3.s }
+            }
         }
         style {
             width((globalState.toDouble() / (globalStateCount - 1).toDouble() * 100.0).percent)
@@ -86,7 +87,7 @@ public fun PresentationState.progress(
     }) {}
 }
 
-@Suppress("unused")
+@Suppress("UnusedReceiverParameter")
 @Composable
 public fun PresentationState.defaultSlideContainer(
     attrs: AttrBuilderContext<HTMLDivElement>? = null,

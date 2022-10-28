@@ -1,9 +1,9 @@
 package net.kodein.pres.sourcecode
 
 import androidx.compose.runtime.Composable
-import net.kodein.pres.util.transition
 import org.jetbrains.compose.web.css.opacity
 import org.jetbrains.compose.web.css.s
+import org.jetbrains.compose.web.css.transitions
 import org.jetbrains.compose.web.dom.AttrBuilderContext
 import org.jetbrains.compose.web.dom.Span
 import org.jetbrains.compose.web.dom.Text
@@ -207,7 +207,9 @@ internal fun NodeList(
         when (it) {
             is Node.Text -> Span({
                 style {
-                    transition { "opacity"( 0.3.s) }
+                    transitions {
+                        "opacity" { duration = 0.3.s }
+                    }
                     if (!unDim && unDimmed.isNotEmpty()) opacity(0.05)
                 }
             }) { Text(it.text) }

@@ -1,12 +1,13 @@
 package net.kodein.pres.demo
 
-import net.kodein.pres.*
+import net.kodein.pres.Animations
+import net.kodein.pres.OverlayAttrs
+import net.kodein.pres.Slide
 import net.kodein.pres.Transitions.fade
 import net.kodein.pres.emojis.Emoji
-import net.kodein.pres.util.transition
+import net.kodein.pres.hiddenIf
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.backgroundColor
-import org.jetbrains.compose.web.css.ms
 import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Text

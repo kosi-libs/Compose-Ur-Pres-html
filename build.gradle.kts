@@ -1,11 +1,11 @@
 plugins {
-    kotlin("multiplatform") version "1.6.21" apply false
-    id("org.jetbrains.compose") version "1.2.0-alpha01-dev686" apply false
+    kotlin("multiplatform") version "1.7.10" apply false
+    id("org.jetbrains.compose") version "1.2.0" apply false
 }
 
 allprojects {
     group = "net.kodein.pres"
-    version = "1.5.0"
+    version = "1.6.0"
 
     repositories {
         mavenLocal()

@@ -1,24 +1,23 @@
 package net.kodein.pres
 
-import net.kodein.pres.util.TransitionBuilder
-import net.kodein.pres.util.transition
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.css.*
 import org.kodein.cic.css
 import org.w3c.dom.HTMLElement
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import org.jetbrains.compose.web.css.Transitions as CssTransitions
 
 
 public interface Transition {
-    public val cssTransition: TransitionBuilder.() -> Unit
+    public val cssTransitions: CssTransitions.() -> Unit
     public val hiddenStyle: StyleScope.() -> Unit
 }
 
 public fun <TElement : HTMLElement> AttrsScope<TElement>.hiddenIf(condition: Boolean, transition: Transition) {
     css {
-        transition {
-            transition.cssTransition.invoke(this)
+        transitions {
+            transition.cssTransitions.invoke(this)
         }
     }
     if (condition) {
@@ -33,8 +32,8 @@ public fun <TElement : HTMLElement> AttrsScope<TElement>.shownIf(condition: Bool
 
 public object Transitions {
     public class Fade(private val duration: Duration) : Transition {
-        override val cssTransition: TransitionBuilder.() -> Unit = {
-            "opacity"(duration.inWholeMilliseconds.ms)
+        override val cssTransitions: CssTransitions.() -> Unit = {
+            "opacity" { duration = this@Fade.duration.inWholeMilliseconds.ms }
         }
 
         override val hiddenStyle: StyleScope.() -> Unit = {
@@ -44,9 +43,12 @@ public object Transitions {
     public val fade: Transition = Fade(300.milliseconds)
 
     public class Grow(private val duration: Duration) : Transition {
-        override val cssTransition: TransitionBuilder.() -> Unit = {
-            "opacity"(duration.inWholeMilliseconds.ms)
-            "transform"(duration.inWholeMilliseconds.ms, AnimationTimingFunction.cubicBezier(.15, .65, .45, 2.2))
+        override val cssTransitions: CssTransitions.() -> Unit = {
+            "opacity" { duration = this@Grow.duration.inWholeMilliseconds.ms }
+            "transform" {
+                duration = this@Grow.duration.inWholeMilliseconds.ms
+                timingFunction = AnimationTimingFunction.cubicBezier(.15, .65, .45, 2.2)
+            }
         }
 
         override val hiddenStyle: StyleScope.() -> Unit = {
@@ -57,9 +59,9 @@ public object Transitions {
     public val grow: Transition = Grow(500.milliseconds)
 
     public class FontGrow(private val duration: Duration): Transition {
-        override val cssTransition: TransitionBuilder.() -> Unit = {
-            "font-size"(duration.inWholeMilliseconds.ms)
-            "line-height"(duration.inWholeMilliseconds.ms)
+        override val cssTransitions: CssTransitions.() -> Unit = {
+            "font-size" { duration = this@FontGrow.duration.inWholeMilliseconds.ms }
+            "line-height" { duration = this@FontGrow.duration.inWholeMilliseconds.ms }
         }
         override val hiddenStyle: StyleScope.() -> Unit = {
             fontSize(0.em)
@@ -69,9 +71,12 @@ public object Transitions {
     public val fontGrow: Transition = FontGrow(300.milliseconds)
 
     public class Stamp(private val duration: Duration) : Transition {
-        override val cssTransition: TransitionBuilder.() -> Unit = {
-            "opacity"(duration.inWholeMilliseconds.ms)
-            "transform"(duration.inWholeMilliseconds.ms, AnimationTimingFunction.EaseIn)
+        override val cssTransitions: CssTransitions.() -> Unit = {
+            "opacity" { duration = this@Stamp.duration.inWholeMilliseconds.ms }
+            "transform" {
+                duration = this@Stamp.duration.inWholeMilliseconds.ms
+                timingFunction = AnimationTimingFunction.EaseIn
+            }
         }
         override val hiddenStyle: StyleScope.() -> Unit = {
             opacity(0)
