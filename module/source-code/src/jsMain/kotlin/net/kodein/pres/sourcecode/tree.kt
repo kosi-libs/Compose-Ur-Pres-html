@@ -16,6 +16,8 @@ import org.w3c.dom.Text as DomText
 private val open = Regex("«([^:]+):")
 private val close = '»'
 
+internal const val DIM_OPACITY = 0.1
+
 internal sealed class Token {
     class Text(val text: String) : Token() {
         override fun toString() = buildString {
@@ -199,24 +201,33 @@ internal fun merge(left: List<Node>, right: List<Node>): List<Node> {
 @Composable
 internal fun NodeList(
     nodes: List<Node>,
-    attrs: Map<String, AttrBuilderContext<HTMLSpanElement>>,
+    contents: Map<String, Pair<ContentDecorator<HTMLSpanElement>?, AttrBuilderContext<HTMLSpanElement>?>>,
     unDimmed: List<String>,
     unDim: Boolean = false
 ) {
     nodes.forEach {
+        val dim = !unDim && unDimmed.isNotEmpty()
         when (it) {
             is Node.Text -> Span({
                 style {
-                    transitions {
-                        "opacity" { duration = 0.3.s }
-                    }
-                    if (!unDim && unDimmed.isNotEmpty()) opacity(0.05)
+                    transitions { "opacity" { duration = 0.3.s } }
+                    if (dim) opacity(DIM_OPACITY)
                 }
             }) { Text(it.text) }
-            is Node.Span -> Span({
-                classes(*it.classNames.toTypedArray())
-                attrs[it.name]?.invoke(this)
-            }) { NodeList(it.nodes, attrs, unDimmed, unDim || it.name in unDimmed) }
+            is Node.Span -> {
+                val pair = contents[it.name]
+                val decorator = pair?.first ?: { _, c -> c() }
+                val attrs = pair?.second
+
+                Span({
+                    classes(*it.classNames.toTypedArray())
+                    attrs?.invoke(this)
+                }) {
+                    decorator(this, dim) {
+                        NodeList(it.nodes, contents, unDimmed, unDim || it.name in unDimmed)
+                    }
+                }
+            }
         }
     }
 }

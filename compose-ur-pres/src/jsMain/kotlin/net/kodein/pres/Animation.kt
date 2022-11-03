@@ -7,6 +7,7 @@ import net.kodein.pres.Animation.Direction.FORWARD
 import net.kodein.pres.util.Style
 import org.jetbrains.compose.web.css.*
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 
 public sealed interface Animation {
@@ -37,8 +38,8 @@ public operator fun Style.plus(second: Style): Style = Animation.combineStyles(t
 
 public object Animations {
 
-    public class Fade(duration: Duration) : Animation.Set(In(duration), Out(duration)) {
-        public class In(override val duration: Duration) : Animation.Appear {
+    public class Fade(duration: Duration = 0.5.seconds) : Animation.Set(In(duration), Out(duration)) {
+        public class In(override val duration: Duration = 0.6.seconds) : Animation.Appear {
             override fun prepare(direction: Direction): Style = Animation.Style {
                 opacity(0.0)
             }
@@ -52,7 +53,7 @@ public object Animations {
                 delay(duration)
             }
         }
-        public class Out(override val duration: Duration) : Animation.Disappear {
+        public class Out(override val duration: Duration = 0.5.seconds) : Animation.Disappear {
             override suspend fun execute(direction: Direction, setStyle: (Style) -> Unit) {
                 setStyle {
                     transitions {
@@ -65,17 +66,21 @@ public object Animations {
         }
     }
 
-    public class Move(duration: Duration) : Animation.Set(In(duration), Out(duration)) {
-        public class In(override val duration: Duration) : Animation.Appear {
+    public class Move(duration: Duration = 0.6.seconds, towards: Towards = Towards.Right) : Animation.Set(In(duration, towards), Out(duration, towards)) {
+        public enum class Towards { Right, Bottom }
+
+        public class In(override val duration: Duration = 0.6.seconds, private val towards: Towards = Towards.Right) : Animation.Appear {
             override fun prepare(direction: Direction): Style = Animation.Style {
                 opacity(0.0)
                 transform {
-                    translateX(
-                        when (direction) {
-                            FORWARD -> 50.percent
-                            BACKWARD -> (-50).percent
-                        }
-                    )
+                    val value = when (direction) {
+                        FORWARD -> 50.percent
+                        BACKWARD -> (-50).percent
+                    }
+                    when (towards) {
+                        Towards.Right -> translateX(value)
+                        Towards.Bottom -> translateY(value)
+                    }
                 }
             }
             override suspend fun execute(direction: Direction, setStyle: (Style) -> Unit) {
@@ -86,13 +91,14 @@ public object Animations {
                     }
                     transform {
                         translateX(0.percent)
+                        translateY(0.percent)
                     }
                     opacity(1.0)
                 }
                 delay(duration)
             }
         }
-        public class Out(override val duration: Duration) : Animation.Disappear {
+        public class Out(override val duration: Duration = 0.6.seconds, private val towards: Towards = Towards.Right) : Animation.Disappear {
             override suspend fun execute(direction: Direction, setStyle: (Style) -> Unit) {
                 setStyle {
                     transitions {
@@ -100,12 +106,14 @@ public object Animations {
                         "opacity" { duration = this@Out.duration.inWholeMilliseconds.ms }
                     }
                     transform {
-                        translateX(
-                            when (direction) {
-                                FORWARD -> (-50).percent
-                                BACKWARD -> 50.percent
-                            }
-                        )
+                        val value = when (direction) {
+                            FORWARD -> (-50).percent
+                            BACKWARD -> 50.percent
+                        }
+                        when (towards) {
+                            Towards.Right -> translateX(value)
+                            Towards.Bottom -> translateY(value)
+                        }
                     }
                     opacity(0.0)
                 }
@@ -114,8 +122,8 @@ public object Animations {
         }
     }
 
-    public class Flip(duration: Duration) : Animation.Set(In(duration), Out(duration)) {
-        public class In(override val duration: Duration) : Animation.Appear {
+    public class Flip(duration: Duration = 1.seconds) : Animation.Set(In(duration), Out(duration)) {
+        public class In(override val duration: Duration = 1.seconds) : Animation.Appear {
             override fun prepare(direction: Direction): Style = Animation.Style {
                 opacity(0.0)
                 transform {
@@ -145,7 +153,7 @@ public object Animations {
                 delay(duration)
             }
         }
-        public class Out(override val duration: Duration) : Animation.Disappear {
+        public class Out(override val duration: Duration = 1.seconds) : Animation.Disappear {
             override suspend fun execute(direction: Direction, setStyle: (Style) -> Unit) {
                 setStyle {
                     transitions {

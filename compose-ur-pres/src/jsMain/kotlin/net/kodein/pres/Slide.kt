@@ -40,3 +40,11 @@ public fun buildSlides(build: PresentationSlidesBuilder.() -> Unit): List<Slide>
 @Composable
 public fun rememberSlides(build: PresentationSlidesBuilder.() -> Unit): List<Slide> =
     remember { buildSlides(build) }
+
+public fun List<Slide>.animatedWith(animation: Animation.Set): List<Slide> =
+    mapIndexed { index, slide ->
+        slide.copy(
+            inAnimation = if (index == 0) slide.inAnimation else animation,
+            outAnimation = if (index == lastIndex) slide.outAnimation else animation
+        )
+    }

@@ -2,21 +2,21 @@ package net.kodein.pres.sourcecode
 
 import androidx.compose.runtime.*
 import kotlinx.browser.document
-import org.jetbrains.compose.web.dom.AttrBuilderContext
-import org.jetbrains.compose.web.dom.Code
-import org.jetbrains.compose.web.dom.Pre
+import kotlinx.browser.window
+import org.jetbrains.compose.web.css.*
+import org.jetbrains.compose.web.dom.*
 import org.jetbrains.compose.web.renderComposable
+import org.kodein.cic.css
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLSpanElement
-import kotlin.collections.HashMap
-import kotlin.collections.List
-import kotlin.collections.emptyList
 import kotlin.collections.set
 
+public typealias ContentDecorator<T> = @Composable ElementScope<T>.(Boolean, ContentBuilder<T>) -> Unit
 
 public class SegmentAnimationBuilder internal constructor() {
     internal var unDimmed: Boolean = false
     internal var attrs: AttrBuilderContext<HTMLSpanElement>? = null
+    internal var content: ContentDecorator<HTMLSpanElement>? = null
 
     public fun unDimmed(unDimmed: Boolean = true) {
         this.unDimmed = unDimmed
@@ -32,15 +32,20 @@ public class SegmentAnimationBuilder internal constructor() {
             }
         }
     }
+
+    public fun content(content: ContentDecorator<HTMLSpanElement>) {
+        require(this.content == null) { "Content is already defined" }
+        this.content = content
+    }
 }
 
 public class SourceAnimationBuilder internal constructor() {
-    internal val attrs = HashMap<String, AttrBuilderContext<HTMLSpanElement>>()
+    internal val contents = HashMap<String, Pair<ContentDecorator<HTMLSpanElement>?, AttrBuilderContext<HTMLSpanElement>?>>()
     internal var unDimmed = ArrayList<String>()
 
     public operator fun String.invoke(block: SegmentAnimationBuilder.() -> Unit) {
         val builder = SegmentAnimationBuilder().apply(block)
-        builder.attrs?.let { attrs["segment-$this"] = it }
+        contents["segment-$this"] = Pair(builder.content, builder.attrs)
         if (builder.unDimmed) unDimmed.add("segment-$this")
     }
 }
@@ -49,9 +54,22 @@ public class SourceAnimationBuilder internal constructor() {
 public fun SourceCode(
     lang: String,
     code: String,
+    copyButton: Boolean = false,
     anims: SourceAnimationBuilder.() -> Unit = {}
 ) {
-    Pre {
+    Pre({
+        css {
+            position(Position.Relative)
+            ".copyButton" {
+                display(DisplayStyle.None)
+            }
+            (self + hover) {
+                ".copyButton" {
+                    display(DisplayStyle.Block)
+                }
+            }
+        }
+    }) {
         Code({
             classes("lang-$lang", "hljs")
         }) {
@@ -59,7 +77,7 @@ public fun SourceCode(
             var builder by remember { mutableStateOf(SourceAnimationBuilder().apply(anims)) }
 
             DisposableEffect(null) {
-                val composition = renderComposable(scopeElement) { NodeList(nodeList, builder.attrs, builder.unDimmed) }
+                val composition = renderComposable(scopeElement) { NodeList(nodeList, builder.contents, builder.unDimmed) }
                 onDispose { composition.dispose() }
             }
 
@@ -77,6 +95,30 @@ public fun SourceCode(
 
             SideEffect {
                 builder = SourceAnimationBuilder().apply(anims)
+            }
+        }
+        if (copyButton) {
+            Button({
+                classes("copyButton")
+                css {
+                    position(Position.Absolute)
+                    bottom(0.px)
+                    right(0.px)
+                    property("border", "none")
+                    backgroundColor(Color.transparent)
+                    fontSize(2.cssRem)
+                    cursor("pointer")
+
+                    (self + active) {
+                        transform { scale(1.2) }
+                    }
+                }
+                onClick {
+                    window.navigator.clipboard.writeText(code)
+                    it.stopPropagation()
+                }
+            }) {
+                Text("\uD83D\uDCCB")
             }
         }
     }
