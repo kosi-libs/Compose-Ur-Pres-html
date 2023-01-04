@@ -23,7 +23,7 @@ kotlin {
                 implementation(compose.web.core)
                 implementation(compose.runtime)
 
-                api("org.kodein.cic:css-in-composable:1.1.0")
+                api("org.kodein.cic:css-in-composable:1.2.0")
             }
         }
 
