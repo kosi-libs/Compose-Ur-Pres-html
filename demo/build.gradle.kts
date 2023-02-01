@@ -1,6 +1,7 @@
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    kotlin("multiplatform")
-    id("org.jetbrains.compose")
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.compose)
 }
 
 kotlin {
@@ -10,11 +11,11 @@ kotlin {
     }
 
     sourceSets {
-        val jsMain by getting {
+        named("jsMain") {
             dependencies {
-                implementation(project(":compose-ur-pres"))
-                implementation(project(":module:source-code"))
-                implementation(project(":module:emojis"))
+                implementation(projects.composeUrPres)
+                implementation(projects.module.sourceCode)
+                implementation(projects.module.emojis)
                 implementation(compose.web.core)
                 implementation(compose.runtime)
             }
@@ -22,7 +23,6 @@ kotlin {
 
         all {
             languageSettings {
-                optIn("kotlin.RequiresOptIn")
                 optIn("org.jetbrains.compose.web.ExperimentalComposeWebApi")
                 optIn("org.jetbrains.compose.web.ExperimentalComposeWebStyleApi")
                 optIn("kotlin.time.ExperimentalTime")

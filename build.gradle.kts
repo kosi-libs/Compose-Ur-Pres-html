@@ -1,16 +1,44 @@
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    kotlin("multiplatform") version "1.7.20" apply false
-    id("org.jetbrains.compose") version "1.2.2" apply false
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.compose)
+    `maven-publish`
 }
 
 allprojects {
     group = "net.kodein.pres"
     version = "1.7.0"
+}
 
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        google()
+kotlin {
+    explicitApi()
+
+    js(IR) {
+        browser()
+    }
+
+    targets.all {
+        compilations.all {
+            kotlinOptions.allWarningsAsErrors = true
+        }
+    }
+
+    sourceSets {
+        named("jsMain") {
+            dependencies {
+                implementation(compose.web.core)
+                implementation(compose.runtime)
+
+                api(libs.cssInComposable)
+            }
+        }
+
+        all {
+            languageSettings {
+                optIn("org.jetbrains.compose.web.ExperimentalComposeWebApi")
+                optIn("org.jetbrains.compose.web.ExperimentalComposeWebStyleApi")
+                optIn("kotlin.time.ExperimentalTime")
+            }
+        }
     }
 }

@@ -5,9 +5,22 @@ pluginManagement {
     }
 }
 
+@Suppress("UnstableApiUsage")
+dependencyResolutionManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        google()
+    }
+}
+
 include(
-    ":compose-ur-pres",
     ":module:source-code",
     ":module:emojis",
     ":demo",
 )
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+rootProject.name = "compose-ur-pres"
