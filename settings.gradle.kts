@@ -1,26 +1,20 @@
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-    }
-}
-
-@Suppress("UnstableApiUsage")
-dependencyResolutionManagement {
+buildscript {
     repositories {
         mavenLocal()
-        mavenCentral()
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        google()
+        maven(url = "https://raw.githubusercontent.com/kosi-libs/kodein-internal-gradle-plugin/mvn-repo")
+    }
+    dependencies {
+        classpath("org.kodein.internal.gradle:kodein-internal-gradle-settings:8.1.2")
     }
 }
 
+apply { plugin("org.kodein.settings") }
+
+rootProject.name = "Kosi-CUP"
+
 include(
+    ":compose-ur-pres",
     ":module:source-code",
     ":module:emojis",
     ":demo",
 )
-
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-rootProject.name = "compose-ur-pres"

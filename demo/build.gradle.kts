@@ -1,32 +1,26 @@
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    alias(libs.plugins.kotlin.multiplatform)
+    kodein.mpp
     alias(libs.plugins.compose)
 }
 
-kotlin {
-    js(IR) {
-        browser()
-        binaries.executable()
+kotlin.kodein {
+    jsEnvBrowserOnly()
+    js {
+        sources.mainDependencies {
+            implementation(projects.composeUrPres)
+            implementation(projects.module.sourceCode)
+            implementation(projects.module.emojis)
+            implementation(kotlin.compose.html.core)
+            implementation(kotlin.compose.runtime)
+        }
+        target.binaries.executable()
     }
+}
 
-    sourceSets {
-        named("jsMain") {
-            dependencies {
-                implementation(projects.composeUrPres)
-                implementation(projects.module.sourceCode)
-                implementation(projects.module.emojis)
-                implementation(compose.web.core)
-                implementation(compose.runtime)
-            }
-        }
-
-        all {
-            languageSettings {
-                optIn("org.jetbrains.compose.web.ExperimentalComposeWebApi")
-                optIn("org.jetbrains.compose.web.ExperimentalComposeWebStyleApi")
-                optIn("kotlin.time.ExperimentalTime")
-            }
-        }
+kotlin.sourceSets.all {
+    languageSettings {
+        optIn("org.jetbrains.compose.web.ExperimentalComposeWebApi")
+//        optIn("org.jetbrains.compose.web.ExperimentalComposeWebStyleApi")
+//        optIn("kotlin.time.ExperimentalTime")
     }
 }
