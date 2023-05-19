@@ -20,7 +20,6 @@ public fun presentationAppInBody(
     animation: Animation.Set = Animations.Move(600.milliseconds),
     enableRouter: Boolean = false,
     syncId: String? = "",
-    nextOnClick: Boolean = true,
     presentationContainer: Container = { a, c -> defaultPresentationContainer(a, c) },
     slideContainer: Container = { a, c -> defaultSlideContainer(a, c) },
     slides: SlidesBuilder.() -> Unit
@@ -40,7 +39,6 @@ public fun presentationAppInBody(
                 animation = animation,
                 enableRouter = enableRouter,
                 syncId = syncId,
-                nextOnClick = nextOnClick,
                 presentationContainer = presentationContainer,
                 slideContainer = slideContainer
             )
@@ -56,7 +54,6 @@ public fun Presentation(
     animation: Animation.Set = Animations.Move(600.milliseconds),
     enableRouter: Boolean = false,
     syncId: String? = "",
-    nextOnClick: Boolean = true,
     presentationContainer: Container = { a, c -> defaultPresentationContainer(a, c) },
     slideContainer: Container = { a, c -> defaultSlideContainer(a, c) },
 ) {
@@ -188,18 +185,18 @@ public fun Presentation(
             }
         }
 
-        DisposableEffect(null) {
-            fun goPrev(fast: Boolean) {
-                lastMoveWasForward = false
-                if (fast) {
-                    if (current.index > 0) {
-                        current = SlideState(current.index - 1, 0)
-                    }
-                } else {
-                    current = current.prev(slides)
+        fun goPrev(fast: Boolean) {
+            lastMoveWasForward = false
+            if (fast) {
+                if (current.index > 0) {
+                    current = SlideState(current.index - 1, 0)
                 }
+            } else {
+                current = current.prev(slides)
             }
+        }
 
+        DisposableEffect(null) {
             scopeElement.onkeydown = { e ->
                 when (e.keyCode) {
                     KeyCodes.RIGHT, KeyCodes.DOWN, KeyCodes.SPACE, KeyCodes.PAGE_DOWN ->
@@ -220,28 +217,6 @@ public fun Presentation(
             onDispose {}
         }
 
-        val presentationContainerWithClick: Container =
-            if (nextOnClick) { attrs, content ->
-                    presentationContainer({
-                        attrs?.invoke(this)
-                        onClick { e ->
-                            if (overview) return@onClick
-
-                            when(e.button) {
-                                MouseButtonCodes.MAIN -> {
-                                    goNext(e.altKey)
-                                    e.preventDefault()
-                                    e.stopPropagation()
-                                }
-                                else -> {}
-                            }
-                        }
-                        css {
-                            property("user-select", "none")
-                        }
-                    }, content)
-            } else presentationContainer
-
         when {
             overview -> OverviewPresentation(
                 presentationContainer = presentationContainer,
@@ -250,11 +225,13 @@ public fun Presentation(
                 defaultAnimation = animation,
                 presentationSize = presentationSize,
                 currentState = current,
+                moveTo = { current = SlideState(it, 0) },
+                stopOverview = { overview = false },
                 lastMoveWasForward = lastMoveWasForward,
                 presenter = presenter
             )
             presenter -> PresenterPresentation(
-                presentationContainer = presentationContainerWithClick,
+                presentationContainer = presentationContainer,
                 slideContainer = slideContainer,
                 slides = slides,
                 defaultAnimation = animation,
@@ -263,7 +240,7 @@ public fun Presentation(
                 lastMoveWasForward = lastMoveWasForward
             )
             else -> FullScreenPresentation(
-                presentationContainer = presentationContainerWithClick,
+                presentationContainer = presentationContainer,
                 slideContainer = slideContainer,
                 slides = slides,
                 defaultAnimation = animation,
@@ -271,6 +248,19 @@ public fun Presentation(
                 currentState = current,
                 lastMoveWasForward = lastMoveWasForward
             )
+        }
+
+        if (js("'ontouchstart' in window") as Boolean && window.navigator.maxTouchPoints >= 1) {
+            if (!overview) {
+                TouchControls(
+                    hasNext = current.index != slides.lastIndex || current.state != slides.last().lastState,
+                    goNext = { goNext(overview) },
+                    hasPrev = current.index != 0 || current.state != 0,
+                    goPrev = { goPrev(overview) },
+                    toggleOverview = { overview = !overview },
+                    slideSize = currentSlide?.rect,
+                )
+            }
         }
     }
 }

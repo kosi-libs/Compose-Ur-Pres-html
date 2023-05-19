@@ -25,6 +25,8 @@ internal fun OverviewPresentation(
     defaultAnimation: Animation.Set,
     presentationSize: DOMRect?,
     currentState: SlideState,
+    moveTo: (Int) -> Unit,
+    stopOverview: () -> Unit,
     lastMoveWasForward: Boolean,
     presenter: Boolean
 ) {
@@ -152,6 +154,14 @@ internal fun OverviewPresentation(
                         css {
                             position(Position.Absolute)
                             property("box-shadow", "0px 0px 2rem 0rem black")
+                            cursor("pointer")
+                            property("-webkit-tap-highlight-color", "transparent")
+                        }
+                        onClick {
+                            it.stopPropagation()
+                            it.preventDefault()
+                            if (delta == 0) stopOverview()
+                            else moveTo(slideIndex)
                         }
                         style {
                             width(slideFullWidth.px)

@@ -2,6 +2,7 @@ package org.kodein.compose.html.pres
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import kotlinx.browser.window
 import org.w3c.dom.DOMRect
 import kotlin.math.abs
 

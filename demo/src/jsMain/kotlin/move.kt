@@ -14,7 +14,11 @@ val move = Slides {
 
         P {
             B { Text("To advance the presentation") }
-            Text(": type Right Arrow, Bottom Arrow, Space, or Enter")
+            Text(": type Right Arrow, Bottom Arrow, Space, or Enter.")
+        }
+        P {
+            B { Text("If you are on mobile:") }
+            Text(" use the right arrow at the bottom right.")
         }
     }
 

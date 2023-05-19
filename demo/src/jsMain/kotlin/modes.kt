@@ -5,6 +5,9 @@ import org.kodein.compose.html.pres.emojis.Emoji
 import org.jetbrains.compose.web.dom.*
 import org.jetbrains.compose.web.attributes.ATarget
 import org.jetbrains.compose.web.attributes.target
+import org.jetbrains.compose.web.css.margin
+import org.jetbrains.compose.web.css.px
+import org.kodein.compose.html.css.css
 import org.kodein.compose.html.pres.Animations
 import org.kodein.compose.html.pres.Animations.Move.Towards.Bottom
 import org.kodein.compose.html.pres.Slides
@@ -40,6 +43,21 @@ val modes = Slides(Animations.Move(towards = Bottom)) {
                 Text("Except for the current slide before any movement!")
             }
         }
+        P {
+            B { Text("On mobile:") }
+            Ul({
+                css { margin(0.px) }
+            }) {
+                Li {
+                    B { Text("To enter:") }
+                    Text(" use the the right ┅ button.")
+                }
+                Li {
+                    B { Text("To exit:") }
+                    Text(" click on the middle (current) slide.")
+                }
+            }
+        }
     }
 
     +Slide(
@@ -50,6 +68,9 @@ val modes = Slides(Animations.Move(towards = Bottom)) {
     ) {
         H1 {
             Text( "Hit 'p' to toggle presenter mode!")
+        }
+        P {
+            Text("Sorry, no presenter mode on mobile.")
         }
     }
 

@@ -13,7 +13,6 @@ fun main() {
 
     presentationAppInBody(
         enableRouter = true,
-        nextOnClick = false,
         syncId = "demo",
         presentationContainer = { attrs, content ->
             defaultOverlayedPresentationContainer(
