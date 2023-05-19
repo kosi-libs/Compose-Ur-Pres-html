@@ -29,8 +29,12 @@ internal fun TouchControls(
             timeoutId = window.setTimeout({ opacity = 0.2 }, 3_000)
         }
         window.addEventListener("touchstart", listener)
+        window.addEventListener("resize", listener)
         listener()
-        onDispose { window.removeEventListener("touchstart", listener) }
+        onDispose {
+            window.removeEventListener("touchstart", listener)
+            window.removeEventListener("resize", listener)
+        }
     }
 
     var windowIsLandscape: Boolean? by remember { mutableStateOf(null) }
