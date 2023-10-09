@@ -13,6 +13,10 @@ kotlin.kodein {
             implementation(npm("highlight.js", "^${libs.versions.highlightJs.get()}"))
         }
     }
+
+    // NOT USED - Workaround to make Dokka happy in MPP JS Only projects
+    // https://github.com/Kotlin/dokka/issues/3122
+    jvm()
 }
 
 kotlin.sourceSets.all {

@@ -4,7 +4,7 @@ plugins {
 
 allprojects {
     group = "org.kodein.compose.html.pres"
-    version = "1.8.0"
+    version = "1.9.0"
 }
 
 task<Sync>("updateDemoDocs") {
