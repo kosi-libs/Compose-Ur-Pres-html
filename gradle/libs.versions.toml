@@ -1,6 +1,6 @@
 [versions]
-compose = "1.5.2"
-cssInComposable = "1.5.0"
+compose = "1.5.10"
+cssInComposable = "1.6.0"
 highlightJs = "11.2.0"
 kxCoroutines = "1.7.3"
 
